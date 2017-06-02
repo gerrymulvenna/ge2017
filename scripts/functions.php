@@ -7,6 +7,25 @@ if ($_SERVER['SERVER_ADDR'] == "216.92.68.138")
     exit();
 }
 
+$use_fields = array(
+"id",
+"name",
+"party_id",
+"party_name",
+"elected",
+"email",
+"twitter_username",
+"facebook_page_url",
+"party_ppc_page_url",
+"facebook_personal_url",
+"homepage_url",
+"wikipedia_url",
+"linkedin_url",
+"image_url",
+"parlparse_id",
+"theyworkforyou_url",
+"party_ec_id");
+
 // array of candidate IDs in the 3 uncontested wards
 $elected_without_contest = array("21540", "21541", "21542", "21375", "8755", "21376", "20966", "20967", "20968");
 

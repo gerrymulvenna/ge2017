@@ -158,7 +158,7 @@ echo '
 ';
 }
 
-function head($title, $mapName, $mapLat, $mapLong, $mapZoom, $mapProperty, $mapUnit, $mapWardDesc = NULL, $twimg = '/website/image/scotland.png')
+function head($title, $mapLat, $mapLong, $mapZoom, $twimg = '/website/image/scotland.png')
 {
     global $councils, $wards;
 
@@ -251,14 +251,8 @@ function navigation($title, $param2 = NULL, $param3 = NULL, $param4 = NULL)
         <input type="checkbox" id="show-menu" role="button">
         <div id="cssmenu">
             <ul>
-                <li><a href="/results/"><span>STV animation</span></a></li>
-                <li><a href="/treeview/results.php"><span>Data explorer</span></a></li>
-                <li><a href="/councils/"><span>By map</span></a></li>
-                <li><a href="/postcode/"><span>By postcode</span></a></li>
-                <li><a href="/treeview/"><span>By council</span></a></li>
-                <li><a href="/treeview/by-party.php"><span>By party</span></a></li>
-                <li><a href="/download/"><span>Download</span></a></li>
-                <li><a href="/about/"><span>About</span></a></li>
+                <li><a href="/map/"><span>Map</span></a></li>
+                <li><a href="/postcode/"><span>Postcode</span></a></li>
             </ul>
         </div>';
 }

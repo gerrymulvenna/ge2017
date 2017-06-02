@@ -3,13 +3,13 @@
 require "functions.php";
 
 $dataRoot = "https://candidates.democracyclub.org.uk/media/candidates-";
-$outDir = "../2017/SCO/";
+$outDir = "../2017/";
 
-$elected = getElectedCandidates($outDir, $elected_without_contest);
-buildRtree($elections, $outDir, $party_prefix, $party_colors);
-buildData(array_keys($elections), $dataRoot, $outDir);
-buildPtree($elections, $outDir, $party_prefix);
-buildCtree($elections, $outDir, $party_prefix);
+//$elected = getElectedCandidates($outDir, $elected_without_contest);
+//buildRtree($elections, $outDir, $party_prefix, $party_colors);
+buildData("parl.2017-06-08", $dataRoot, $outDir, $use_fields);
+//buildPtree($elections, $outDir, $party_prefix);
+//buildCtree($elections, $outDir, $party_prefix);
 
 //boundaryWards(array_keys($elections), $outDir, "boundary-wardinfo.csv");
 
@@ -900,69 +900,70 @@ function convertCandidates($candidates, $last_id, $party_prefix)
 
 
 // wards -> candidates 
-function buildData($elections, $dataRoot, $dir)
+function buildData($election, $dataRoot, $dir, $fields)
 {
     global $elected;
 
-    $wardinfo = array();
     echo "Building CANDIDATE data files...<br>\n";
-    foreach ($elections as $election)
+    $wards = array();
+    $wardIDs = array();   //used to keep track of which wards have been added
+    $candURL = $dataRoot.$election.".csv";
+    $arrCand = getData($candURL, $election);
+    // remove any dud lines
+    for ($i = 1; $i < count($arrCand); $i++)
     {
-        if (preg_match('/^local\.(.+)\.2017-05-04$/', $election, $matches))
-  	    {
-            $wards = array();
-            $wardIDs = array();   //used to keep track of which wards have been added
-            $candURL = $dataRoot.$election.".csv";
-            $arrCand = getData($candURL, $election);
-            for ($i = 1; $i < count($arrCand); $i++)
-            {
-                if (count($arrCand[$i]) <= 1)
-                {
-                    unset ($arrCand[$i]);
-                }
-            }
-
-            $header = array_shift($arrCand);
-            array_walk($arrCand, '_combine_array', $header);
-  
-            foreach ($arrCand as $candidate)
-            {
-                // fudge to get surname using part after last space
-                $names = splitName($candidate['name']);
-                if (!empty($names))
-                {
-                    $candidate = array_merge($candidate, $names);
-                }
-                if (isset($elected[$candidate['id']]))
-                {
-                    $candidate['elected'] = ($elected[$candidate['id']]) ? "True" : "False";
-                }
-                $post_id = $candidate['post_id'];
-                if (!empty($post_id))
-                {
-                    $post_label = $candidate['post_label'];
-                    unset ($candidate['election']);
-                    unset ($candidate['post_id']);
-                    unset ($candidate['post_label']);
-					$key = array_search($post_id, $wardIDs);
-                    if ($key === False)
-                    {
-                        $wardIDs[] = $post_id;
-                        $wards[] = array('post_id' => $post_id, 'post_label' => $post_label, 'election' => $election, 'candidates' => array($candidate));
-                        $wardinfo[] = array('post_id' => $post_id, 'post_label' => $post_label, 'election' => $matches[1]);
-                    }
-                    else
-                    {
-                        array_push($wards[$key]['candidates'], $candidate);			   
-                    }
-                }
-            }
-            $dc = new DemoClub_Wards();
-            $dc->wards = $wards;
-            writeJSON($dc, $dir . $election . ".json");
+        if (count($arrCand[$i]) <= 1)
+        {
+            unset ($arrCand[$i]);
         }
     }
-    saveCSV($wardinfo, "candidate-wardinfo.csv");
+
+    $header = array_shift($arrCand);
+    array_walk($arrCand, '_combine_array', $header);
+
+    foreach ($arrCand as $candidate)
+    {
+        // fudge to get surname using part after last space
+        $names = splitName($candidate['name']);
+        if (!empty($names))
+        {
+            $candidate = array_merge($candidate, $names);
+        }
+        if (isset($elected[$candidate['id']]))
+        {
+            $candidate['elected'] = ($elected[$candidate['id']]) ? "True" : "False";
+        }
+        $post_id = $candidate['post_id'];
+        if (!empty($post_id))
+        {
+            $post_label = $candidate['post_label'];
+            foreach($candidate as $ident => $value)
+            {
+                // only include important fields to minimise the size of the JSON
+                if (!in_array($ident, $fields))
+                {
+                    unset ($candidate[$ident]);
+                }
+                elseif (empty($value))
+                {
+                    unset ($candidate[$ident]);
+                }
+            }
+            $key = array_search($post_id, $wardIDs);
+            if ($key === False)
+            {
+                $wardIDs[] = $post_id;
+                $wards[] = array('post_id' => $post_id, 'post_label' => $post_label, 'election' => $election, 'candidates' => array($candidate));
+            }
+            else
+            {
+                array_push($wards[$key]['candidates'], $candidate);			   
+            }
+        }
+    }
+    $dc = new DemoClub_Wards();
+    $dc->wards = $wards;
+    writeJSON($dc, $dir . $election . ".json");
 }
 
 // once-off routine to get ward codes from boundary data files
