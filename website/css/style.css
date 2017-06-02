@@ -811,7 +811,7 @@ a.result {
     display: none;
 }
 
-#no_seats {
+#ge2015 {
  display: block;   
     position: relative;
 	margin-bottom: 35px;
@@ -819,15 +819,7 @@ a.result {
 	margin-top: 20px;
 }
 
-#first_prefs {
- display: block;   
-    position: relative;
-	margin-bottom: 35px;
-	margin-right: 15px;
-	margin-top: 20px;
-}
-
-#quotas {
+#ge2017 {
  display: block;   
     position: relative;
 	margin-bottom: 35px;
