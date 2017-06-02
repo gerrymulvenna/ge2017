@@ -18,6 +18,7 @@ echo '
 <div class="content">
 			<div id="map"></div>
             <div id="details">
+                <div id="wardinfo"></div>
                 <h3 id="breadcrumb">Results</h3>
 ';
 echo'

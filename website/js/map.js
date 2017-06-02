@@ -33,22 +33,14 @@
 		if (!L.Browser.ie && !L.Browser.opera) {
 			layer.bringToFront();
 			}
-			info.update(layer.feature.properties);
-		if (mapUnit == 'Ward')
+		info.update(layer.feature.properties);
+		ward_code = layer.feature.properties['CODE'];
+		candidates.update();
+		wardinfo.update;
+		tips.update('<a href="#candidates">Go to candidates list below</a>');
+		if (by_event)
 		{
-			ward_code = layer.feature.properties[mapWardDesc];
-			candidates.update();
-			wardinfo.update;
-			tips.update('<a href="#candidates">Go to candidates list below</a>');
-			if (by_event)
-			{
-				setWard(ward_code);
-			}
-		}
-		else
-		{
-			councilPath = layer.feature.properties.FILE_NAME.toLowerCase().replace(/_/g,'-');
-			location.href = '/councils/' + councilPath  + '.php';
+			setWard(ward_code);
 		}
 	}
 	
@@ -60,7 +52,7 @@
 		});
 	}
 		
-	var boundaries = new L.GeoJSON.AJAX('/2017/SCO/boundaries/' + mapName + '.geojson', {
+	var boundaries = new L.GeoJSON.AJAX('/2017/boundaries/uk-boundaries.geojson', {
 		style: layerStyle,
 		onEachFeature: onEachFeature
 		});
@@ -83,59 +75,14 @@
 	boundaries.addTo(map);
 
 	$(window).load(function(e) {
-			if (searchParams['ward'])
-			{
-					var initlayer = getLayer (boundaries, mapWardDesc, searchParams['ward']);
-					if (initlayer)
-					{
-						layerSelect(initlayer, false);
-					}
-			}
-			else if (mapName == 'scotland')
-			{
-				var stripes = [];   // an array of stripes objects
-				// if we're looking at map of Scotland, we can colour the councils according to the results
-				$.getJSON('/2017/SCO/summary.json', function (data) {
-					$.each( data, function( index, element ) {
-						if (element.biggest_parties.length == 1)
-						{
-							var council = element.council.toUpperCase().replace(/-/g,'_');
-							var thisLayer = getLayer(boundaries, 'FILE_NAME', council);
-							if (thisLayer)
-							{
-								thisLayer.setStyle({fillColor: element.biggest_parties[0].color, fillOpacity: 0.9});
-							}
-						}
-						else if (element.biggest_parties.length == 2)  // we'll use the leaflet.pattern plugin to do stripes. Luckily we don't have a three-way tie
-						{
-							// Custom Stripes.
-							stripes[element.council] = new L.StripePattern({
-								color: element.biggest_parties[0].color,
-								opacity: 1,
-								spaceColor: element.biggest_parties[1].color,
-								spaceOpacity: 1,
-								weight: 4,
-								spaceWeight: 4,
-								angle: 45
-							});
-							var council = element.council.toUpperCase().replace(/-/g,'_');
-							stripes[element.council].addTo(map);
-							var thisLayer = getLayer(boundaries, 'FILE_NAME', council);
-							if (thisLayer)
-							{
-								thisLayer.setStyle({fillPattern: stripes[element.council], fillOpacity: 0.9});
-							}
-						}
-					});		
-					legend.update('Colours denote parties with<br>most seats per council');
-				});
-				overview_by_var(2017, 'SCO', 'no_seats', 'first_prefs', 'councillor', 'councillors', 'no_seats', '#no_seats');
-			}
-			else
-			{
-				overview_by_var(2017, 'SCO/' + mapName, 'no_seats', 'first_prefs', 'councillor', 'councillors', 'no_seats', '#no_seats');
-			}
-
+		if (searchParams['ward'])
+		{
+				var initlayer = getLayer (boundaries, mapWardDesc, searchParams['ward']);
+				if (initlayer)
+				{
+					layerSelect(initlayer, false);
+				}
+		}
 	});
 	
 	// detect if user agent is a mobile device and if so disable map zooming panning etc
@@ -151,7 +98,7 @@
 	};
 	// method that we will use to update the map info control based on feature properties passed
 	info.update = function (props) {
-		this._div.innerHTML = '<h4>' + mapTitle + '</h4>' +  (props ? '<strong>' + props[mapProperty] + '</strong>' : 'Select a ' + mapUnit.toLowerCase());
+		this._div.innerHTML = '<h4>Constituency</h4>' +  (props ? '<strong>' + props.FILE_NAME + '</strong>' : '');
 	};
 	info.addTo(map);
 

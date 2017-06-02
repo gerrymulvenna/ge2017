@@ -160,26 +160,8 @@ echo '
 
 function head($title, $mapLat, $mapLong, $mapZoom, $twimg = '/website/image/scotland.png')
 {
-    global $councils, $wards;
-
-    $desc = "Ward level candidates list for the Scottish Council Elections 2017";
+    $desc = "Map-based interface to UK General Election data 2017";
     $url = $_SERVER['REQUEST_URI'];
-    if (preg_match("/^\/councils\/(.+)\.php$/", $_SERVER['SCRIPT_NAME'], $matches))
-    {
-        if (isset($councils[$matches[1]]))
-        {
-            $desc = $councils[$matches[1]] . " council election candidates 2017";
-            $title = $desc;
-            if (isset($_GET['ward']))
-            {
-                if (isset($wards[$_GET['ward']]))
-                {
-                    $desc = $wards[$_GET['ward']] . ", " . $councils[$matches[1]] . " council election candidates 2017";
-                    $title = $desc;
-                }
-            }
-        }
-    }
     echo '<!DOCTYPE html>
 <html>
 <head>';
@@ -197,16 +179,9 @@ function head($title, $mapLat, $mapLong, $mapZoom, $twimg = '/website/image/scot
 <script type="text/javascript">
 // global vars for maps.js
 ';
-    echo "    var mapName = '$mapName';\n";
     echo "    var mapLat = $mapLat;\n";
     echo "    var mapLong = $mapLong;\n";
     echo "    var mapZoom = $mapZoom;\n";
-    echo "    var mapProperty = '$mapProperty';\n";
-    echo "    var mapUnit = '$mapUnit';\n";
-    if($mapWardDesc)
-    {
-        echo "    var mapWardDesc = '$mapWardDesc';\n";
-    }
     echo '</script>
 
   <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7/leaflet.css"/>
