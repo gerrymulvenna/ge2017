@@ -1,4 +1,4 @@
-var statesData = readJSON('/2017/SCO/boundaries/scotland.geojson');
+var statesData = readJSON('/2017/boundaries/uk-boundaries.geojson');
 
 // function to use mapit API to get postcode data
 function getPostcodeData (postcode)

@@ -76,39 +76,9 @@ $blank_row = array(
 "candidates"=>""
 );
 
-$elections = array(
-"local.aberdeen-city.2017-05-04" => "Aberdeen City",
-"local.aberdeenshire.2017-05-04"=> "Aberdeenshire",
-"local.angus.2017-05-04" => "Angus",
-"local.argyll-and-bute.2017-05-04" => "Argyll and Bute",
-"local.city-of-edinburgh.2017-05-04" => "City of Edinburgh",
-"local.clackmannanshire.2017-05-04" => "Clackmannanshire",
-"local.dumfries-and-galloway.2017-05-04" => "Dumfries and Galloway",
-"local.dundee-city.2017-05-04" => "Dundee City",
-"local.east-ayrshire.2017-05-04" => "East Ayrshire",
-"local.east-dunbartonshire.2017-05-04" => "East Dunbartonshire",
-"local.east-lothian.2017-05-04" => "East Lothian",
-"local.east-renfrewshire.2017-05-04" => "East Renfrewshire",
-"local.falkirk.2017-05-04" => "Falkirk",
-"local.fife.2017-05-04" => "Fife",
-"local.glasgow-city.2017-05-04" => "Glasgow City",
-"local.highland.2017-05-04" => "Highland",
-"local.inverclyde.2017-05-04" => "Inverclyde",
-"local.midlothian.2017-05-04" => "Midlothian",
-"local.moray.2017-05-04" => "Moray",
-"local.eilean-siar.2017-05-04" => "Na h-Eileanan an Iar",
-"local.north-ayrshire.2017-05-04" => "North Ayrshire",
-"local.north-lanarkshire.2017-05-04" => "North Lanarkshire",
-"local.orkney-islands.2017-05-04" => "Orkney Islands",
-"local.perth-and-kinross.2017-05-04" => "Perth and Kinross",
-"local.renfrewshire.2017-05-04" => "Renfrewshire",
-"local.the-scottish-borders.2017-05-04" => "The Scottish Borders",
-"local.shetland-islands.2017-05-04" => "Shetland Islands",
-"local.south-ayrshire.2017-05-04" => "South Ayrshire",
-"local.south-lanarkshire.2017-05-04" => "South Lanarkshire",
-"local.stirling.2017-05-04" => "Stirling",
-"local.west-dunbartonshire.2017-05-04" => "West Dunbartonshire",
-"local.west-lothian.2017-05-04" => "West Lothian");
+$CSVs = array(
+"https://candidates.democracyclub.org.uk/media/candidates-parl.2017-06-08.csv" => "parl.2017-06-08",
+"https://candidates.democracyclub.org.uk/media/candidates-2015.csv" => "parl.2015-05-07");
 
 // this array of party abbreviations mirrors the classes in parties.css
 // used in the jstree data to prefix each candidate and set the icon class

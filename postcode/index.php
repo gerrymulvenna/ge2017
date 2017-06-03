@@ -3,8 +3,8 @@ require $_SERVER["DOCUMENT_ROOT"] . "/website/php/functions.php";
 ?>
 <!DOCTYPE html>
 <html>
-<head>    <title>#council17 Scotland - Map-based interface to crowd-sourced data for the Scottish Council elections 2017</title>
-
+<head>
+    <title>#GE2017 - find constituency by postcode - UK General Election 2017</title>
     <meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://api.tiles.mapbox.com/mapbox.js/v1.6.4/mapbox.js"></script>
@@ -18,8 +18,8 @@ require $_SERVER["DOCUMENT_ROOT"] . "/website/php/functions.php";
 		<!--[if (lt IE 9)&(!IEMobile)]>
 		<link rel="stylesheet" type="text/css" href="enhanced.css" />
 		<![endif]-->
-    <meta name="description" content="Map-based interface to browse the candidates for the Scottish Council Elections 2017" />
-    <meta name="keywords" content="Scotland, local elections, open data, 2017, crowdsource, single transferable vote, stv, ward, candidate, voting, #council17, electoral"
+    <meta name="description" content="#GE2017 - find constituency by postcode - UK General Election 2017" />
+    <meta name="keywords" content="UK politics, general election, open data, 2017, crowdsource, candidates, results, voting, #ge2017, electoral"
     />
     <meta name="author" content="Gerry Mulvenna">
     <meta name="robots" content="index, follow">
@@ -29,20 +29,20 @@ require $_SERVER["DOCUMENT_ROOT"] . "/website/php/functions.php";
     <meta name="twitter:creator" content="@gerrymulvenna" />
     <meta property="og:url" content="http://council17.mulvenna.org/councils/" />
     <meta property="og:title" content="Scottish Council elections 2017 #council17" />
-    <meta property="og:description" content="Presenting crowdsourced open data, live results and data visualisations for the Scottish Council Elections 2017" />
-    <meta property="og:image" content="http://elections.gjm/website/image/scotland.png" />
+    <meta property="og:description" content="Presenting crowdsourced open data, live results and data visualisations for the UK General Election 2017" />
+    <meta property="og:image" content="http://ge2017.mulvenna.org/website/image/scotland.png" />
 </head>
 <body>
 	<div id="wrap">
 <?php
-navigation("Scottish Council elections 2017");
+navigation("UK General Election 2017");
 ?>
 <div class="content" align="center">
-<h1>Find #council17 ward by postcode</h1>
+<h1>Find constituency by postcode</h1>
 
 			<div id='map' class="hidden"></div>
 			<input id="postcode" type="text" placeholder="Enter a postcode" maxlength="8"><br>
-			<button id='me'>Find ward</button>
+			<button id='me'>Find constituency</button>
 			<script src='/website/js/postcode.js'></script>
 	        <script src='/website/js/leaflet-pip.js'></script>
 		</div>

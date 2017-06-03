@@ -1,7 +1,24 @@
-var checkedYear = 2017;
-var electionDate = '2017-06-08';
-var jsondata = [];
 var searchParams = getSearchParams();
+var year = 2017;
+if (searchParams['year'])
+{
+	year = searchParams['year'];
+}
+
+switch(year)
+{
+	case 2015:
+		var electionDate = '2015-05-07';
+		break;
+	case 2017:
+	default:
+		var electionDate = '2017-06-08';
+		break;
+}
+
+var jsondata = [];
+var post_id;
+var post_label;
 var layerStyle = {
 	weight: 1,
 	color: '#34495e',
@@ -30,17 +47,21 @@ function layerSelect(layer, by_event)
 			weight: 2,
 			fillOpacity: 0.7
 	});
+	var currentZoom = map.getZoom();
+	var maxZoom = (currentZoom <= 7) ? 7: currentZoom;
+	map.fitBounds(layer, {maxZoom: maxZoom});
+
 	if (!L.Browser.ie && !L.Browser.opera) {
 		layer.bringToFront();
 		}
 	info.update(layer.feature.properties);
-	post_id = layer.feature.properties['CODE'];
-	candidates.update();
-	constinfo.update;
+	post_id = layer.feature.properties.CODE;
+	post_label = layer.feature.properties.NAME.replace(/ (Co|Burgh|Boro) Const$/g, '');
+	updateCandidates(year);
 	tips.update('<a href="#candidates">Go to information below</a>');
 	if (by_event)
 	{
-		setParam(post_id);
+		setParam(post_id, year);
 	}
 }
 
@@ -73,17 +94,6 @@ L.tileLayer(
 		}).addTo(map);
 
 boundaries.addTo(map);
-
-$(window).load(function(e) {
-	if (searchParams['wmc'])
-	{
-			var initlayer = getLayer (boundaries, 'CODE', searchParams['wmc']);
-			if (initlayer)
-			{
-				layerSelect(initlayer, false);
-			}
-	}
-});
 
 // detect if user agent is a mobile device and if so disable map zooming panning etc
 if ( /Android|webOS|iPhone|iPad|iPod|Blackberry|IEMobile|Opera Mini|Mobi/.test(navigator.userAgent)) {
@@ -136,16 +146,24 @@ legend.update = function (msg) {
 legend.addTo(map);
 
 
-// load all candidates info for the checkedYear
-findInfo(checkedYear, 'parl.' + electionDate + '.json');   //populate jsondata
+////// FUNCTIONS TO HANDLE HTML ELEMENT POPULATION OF CANDIDATE INFORMATION //////
+function updateCandidates(y)
+{
+	// load all candidates info for the year
+	switch(y)
+	{
+		case "2015":
+			var electionDate = '2015-05-07';
+			break;
+		case "2017":
+		default:
+			var electionDate = '2017-06-08';
+			break;
+	}
 
-////// FUNCTIONS TO HANDLE HTML ELEMENT POPULATION OF CANDIDATE AND WARD INFORMATION //////
-var candidates = document.getElementById('candidates');
-var constinfo = document.getElementById('constinfo');
+	findInfo(2017, 'parl.' + electionDate + '.json');   //populate jsondata
 
-candidates.update = function() {
-   var ack = '<div id="ack"><div id="dc-caption">This full set of candidate data was collated by</div><div id="dc-logo"><a href="http://democracyclub.org.uk"><img src="https://democracyclub.org.uk/static/dc_theme/images/logo-with-text-2017.png" width="250"></a></div><div id="disclaimer">DISCLAIMER The ordering of the candidates above is a best guess. The actual ballot paper for this ward may interpret the alphabetical ordering of candidates\' names differently.</div>';
-	$("#tabs-container").css('display', 'none');
+	var ack = '<div id="ack"><div id="dc-caption">This full set of candidate data was collated by</div><div id="dc-logo"><a href="http://democracyclub.org.uk"><img src="https://democracyclub.org.uk/static/dc_theme/images/logo-with-text-2017.png" width="250"></a></div><div id="disclaimer">DISCLAIMER The ordering of the candidates above is a best guess. The actual ballot paper for this ward may interpret the alphabetical ordering of candidates\' names differently.</div>';
 	this.innerHTML = '';
 	var tw;
 	var fb;
@@ -154,16 +172,18 @@ candidates.update = function() {
 	var linkedin;
 	var wiki;
 	var status;
+	var party;
 
-	var ward = getObjects(jsondata, 'post_id', 'WMC:' + post_id);
+	var cData = getObjects(jsondata, 'post_id', 'WMC:' + post_id);
 
-	if (ward.length > 0)
+	$('#candidates-' + y).css('display','block');
+	if (cData.length > 0)
 	{
 		var result ="";
 		$.ajax({
 			'async': false,
 			'global': false,
-			'url': '/2017/results/' + post_id + '.json?' + new Date().getTime(),
+			'url': '/' + year + '/results/' + post_id + '.json?' + new Date().getTime(),
 			'dataType': "json",
 			'success': function (data) {
 				var cinfo = data.Constituency.countInfo;
@@ -171,8 +191,8 @@ candidates.update = function() {
 				$("#electorate").html("<p>Electorate: " + numberWithCommas(parseInt(cinfo.Total_Electorate)) + ", Turnout: " + numberWithCommas(parseInt(cinfo.Total_Poll)) + " (" + turnout + "%), Valid votes: " + numberWithCommas(parseInt(cinfo.Valid_Poll)) + ", Quota: " + numberWithCommas(quota) + "</p>\n");
 			}});
 
-		var candidates = ward[0].candidates.sort(cmpSurnames);
-		constinfo.innerHTML = '<h3><a name="candidates">' + post_id + ' ward</a><br><span class="seats">' + candidates.length + ' candidates</span></h3>';
+		var candidates = cData[0].candidates.sort(cmpSurnames);
+		var html = '<h3><a class="cand_anchor" name="candidates">' + post_label + '</a><br><span class="seats">' + candidates.length + ' candidates</span></h3>';
 		for (i = 0; i < candidates.length; i++) {
 			tw = (candidates[i].twitter_username) ? '<a href="http://twitter.com/' + candidates[i].twitter_username + '" target="~_blank"><i class="fa fa-twitter fa-fw" title="@' +  candidates[i].twitter_username + ' on Twitter"></i></a>' : '';
 			fb = (candidates[i].facebook_page_url) ? '<a href="' + candidates[i].facebook_page_url + '" target="_blank"><i class="fa fa-facebook fa-fw"  title="Facebook page"></i></a>' : '';
@@ -192,12 +212,14 @@ candidates.update = function() {
 				default:
 					status = "unkonwn";
 			}
-			this.innerHTML += "<div class=\"votes " + candidates[i].party_name.replace(/\s+/g, "-").replace(/[\'\",()]/g,"").replace(/\u2013/g, '_') + "\"></div><div id=\"candidate " + candidates[i].id + "\" class=\"tooltip " + candidates[i].party_name.replace(/\s+/g, "-").replace(/[\'\",()]/g,"").replace(/\u2013/g, '_') + "_label\"><span class=\"tooltiptext\">" + candidates[i].party_name + "</span>" + '<span class="' + status +'">' + candidates[i].name + "</span><div class=\"cand-icons\">" + tw + fb + fbp + web  + linkedin + wiki  + edit + "</div></div><br/>";
+			party = candidates[i].party_name.replace(/\s+/g, "-").replace(/[\'\"&,.()]/g,"").replace(/\u2013/g, '_').replace(/\u00e9/g, 'e');
+			html += "<div class=\"votes " + party + "\"></div><div id=\"candidate " + candidates[i].id + "\" class=\"tooltip " + party + "_label\"><span class=\"tooltiptext\">" + candidates[i].party_name + "</span>" + '<span class="' + status +'">' + candidates[i].name + "</span><div class=\"cand-icons\">" + tw + fb + fbp + web  + linkedin + wiki  + edit + "</div></div><br/>";
 		}
-		this.innerHTML += ack;
-//		updateTitle(wardstats[0].ward_name, wardstats[0].council);
+		html += ack;
+		$('#candidates-' + y).html(html);
+		updateTitle(cData.post_label);
 	}
-};
+}
 
 
 // detect if user agent is iOS and provide two-tap guidance
@@ -224,8 +246,8 @@ function getSearchParams(k){
 }
 
 //function to record ward_code in URL search query string (assumes it is only parameter)
-function setParam(post_id){
-  window.history.replaceState({}, '', location.pathname + '?wmc=' + post_id );
+function setParam(wmc, y){
+  window.history.replaceState({}, '', location.pathname + '?wmc=' + wmc + '&year=' + y );
 }
 
 // change the title to reflect the ward selected
@@ -335,15 +357,53 @@ function strrpos (haystack, needle, offset) {
   return i >= 0 ? i : false
 }
 
-
-
-// optional message on clearing 'candidates' element. If none set arg to ''
-function clearCandidates(msg) {
-    candidates.innerHTML = msg;
-}
-
-
 // straightfoward, take a number element e.g. 78521 and add thousand-separator comma to return '78,521' (n.b. this is a string)
 function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
+
+$(document).ready(function() {
+    $(".tabs-menu a").click(function(event) {
+        event.preventDefault();
+        $(this).parent().addClass("current");
+        $(this).parent().siblings().removeClass("current");
+        var tab = $(this).attr("href");
+        $(".tab-content").not(tab).css("display", "none");
+		$(tab).html("");
+        $(tab).fadeIn(400, function(){
+			switch(tab)
+			{
+				case '#candidates-2017':
+					year = "2017";
+					setParam(post_id, year);
+					updateCandidates(year);
+					break;
+				case "#uk-2017":
+					year = "2017";
+					setParam(post_id, year);
+					break;
+				case '#candidates-2015':
+					year = "2015";
+					setParam(post_id, year);
+					updateCandidates(year);
+					break;
+				case "#uk-2015":
+					year = "2015";
+					setParam(post_id, year);
+					break;
+			}
+		});
+    });
+});
+
+$(window).load(function(e) {
+	if (searchParams['wmc'])
+	{
+			var initlayer = getLayer (boundaries, 'CODE', searchParams['wmc']);
+			if (initlayer)
+			{
+				layerSelect(initlayer, false);
+			}
+	}
+});
+

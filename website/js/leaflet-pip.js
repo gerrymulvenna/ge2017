@@ -472,32 +472,15 @@ document.getElementById('me').onclick = function() {
 				[lng, lat], gjLayer);
 			if (res.length) 
 			{
-				// find council in Scotland data
-				var council = res[0].feature.properties.FILE_NAME.toLowerCase().replace(/_/g, '-');
-				// look in council data for ward
-				wardLayer = L.geoJson(readJSON('/2017/SCO/boundaries/' + council + '.geojson'));
-				var wardres = leafletPip.pointInLayer([lng, lat], wardLayer);
-				if (wardres.length)
-				{
-					if (wardres[0].feature.properties.hasOwnProperty('CODE'))
-					{
-						ward_code = wardres[0].feature.properties.CODE;
-					}
-					else if (wardres[0].feature.properties.hasOwnProperty('Ward_Code'))
-					{
-						ward_code = wardres[0].feature.properties.Ward_Code;
-					}
-					document.getElementById('me').innerHTML = council + ' / ' + ward_code;
-					location.href = '/councils/' + council + '.php?ward=' + ward_code;
-				}
-				else
-				{
-					document.getElementById('me').innerHTML = council + ' / ward not found';
-				}
+				// find constituency in data
+				var constituency = res[0].feature.properties.NAME.replace(/ (Co|Burgh|Boro) Const$/g, '');
+				var code = res[0].feature.properties.CODE;
+				document.getElementById('me').innerHTML = constituency;
+				location.href = '/map/?wmc=' + code;
 			}
 			else 
 			{
-				document.getElementById('me').innerHTML = 'Not in Scotland';
+				document.getElementById('me').innerHTML = 'Not found in data';
 			}
 		}
 		else

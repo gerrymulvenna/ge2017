@@ -496,7 +496,7 @@ input[id=show-menu]:checked~#cssmenu {
 
 #ack {
 	display: block;
-	padding-top: 50px;
+	padding-top: 15px;
 	width: 300px;
 }
 
@@ -766,9 +766,10 @@ a.result {
 .tabs-menu li {
     list-style-type: none;
     height: 30px;
-    line-height: 30px;
+	line-height: 1em;
     float: left;
     margin-right: 10px;
+    margin-left: 0px;
     background-color: #34495e;
     border-top: 1px solid #34495e;
     border-right: 1px solid #34495e;
@@ -783,7 +784,7 @@ a.result {
 }
 
 .tabs-menu li a {
-    padding: 10px;
+    padding: 5px;
     color: #fff;
     text-decoration: none; 
 }
@@ -811,25 +812,44 @@ a.result {
     display: none;
 }
 
-#ge2015 {
+#candidates-2015 {
  display: block;   
     position: relative;
 	margin-bottom: 35px;
 	margin-right: 15px;
 	margin-top: 20px;
+	margin-left: 15px;
 }
 
-#ge2017 {
+#candidates-2017 {
  display: block;   
     position: relative;
 	margin-bottom: 35px;
 	margin-right: 15px;
 	margin-top: 20px;
+	margin-left: 15px;
+}
+
+#uk-2015 {
+ display: block;   
+    position: relative;
+	margin-bottom: 35px;
+	margin-right: 15px;
+	margin-top: 20px;
+	margin-left: 15px;
+}
+
+#uk-2017 {
+ display: block;   
+    position: relative;
+	margin-bottom: 35px;
+	margin-right: 15px;
+	margin-top: 20px;
+	margin-left: 15px;
 }
 
 #tabs-container {
 	padding: 0px;
-	line-height: 1.5;
 }
 
 
@@ -847,6 +867,7 @@ a.result {
 	margin-bottom: 0px;
 }
 
-#stv {
-	display: none;
+a.cand_anchor {
+	text-decoration: none;
+	color: #000;
 }

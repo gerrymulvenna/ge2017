@@ -324,10 +324,10 @@
 }
 
 
-.Alliance-Party_label:before {
+.Alliance---Alliance-Party-of-Northern-Ireland_label:before {
     content: "(Alliance) ";
 }
-.Social-Democratic-and-Labour-Party_label:before {
+.SDLP-Social-Democratic--Labour-Party_label:before {
     content: "(SDLP) ";
 }
 .Ulster-Unionist-Party_label:before {
@@ -339,7 +339,7 @@
 .Green-Party_label:before {
     content: "(Greens) ";
 }
-.Democratic-Unionist-Party_label:before {
+.Democratic-Unionist-Party---DUP_label:before {
     content: "(DUP) ";
 }
 .Traditional-Unionist-Voice_label:before {
@@ -403,10 +403,10 @@
     content: "(AWP) ";
 }
 
-.Alliance-Party_abbr:before {
+.Alliance---Alliance-Party-of-Northern-Ireland_abbr:before {
     content: "Alliance";
 }
-.Social-Democratic-and-Labour-Party_abbr:before {
+.SDLP-Social-Democratic--Labour-Party_abbr:before {
     content: "SDLP";
 }
 .Ulster-Unionist-Party_abbr:before {
@@ -418,7 +418,7 @@
 .Green-Party_abbr:before {
     content: "Greens";
 }
-.Democratic-Unionist-Party_abbr:before {
+.Democratic-Unionist-Party---DUP_abbr:before {
     content: "DUP";
 }
 .Traditional-Unionist-Voice_abbr:before {
@@ -482,7 +482,7 @@
     content: "AWP) ";
 }
 
-.Social-Democratic-and-Labour-Party {
+.SDLP-Social-Democratic--Labour-Party {
     fill: #E53935!important;
     background: #E53935!important;
     color: #fff
@@ -512,13 +512,13 @@
     color: #fff
 }
 
-.Alliance-Party {
+.Alliance---Alliance-Party-of-Northern-Ireland {
     fill: #FDD835!important;
     background: #FDD835!important;
     color: #fff
 }
 
-.Democratic-Unionist-Party {
+.Democratic-Unionist-Party---DUP {
     fill: #FF5722!important;
     background: #FF5722!important;
     color: #fff
