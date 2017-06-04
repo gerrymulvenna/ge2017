@@ -153,7 +153,6 @@ function updateCandidates()
 
 		var cData = getObjects(jsondata, 'post_id', 'WMC:' + post_id);
 
-		$('#candidates-' + y).css('display','block');
 		if (cData.length > 0)
 		{
 			$.ajax({

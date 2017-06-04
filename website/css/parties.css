@@ -1,3 +1,148 @@
+.Workers-Revolutionary-Party_label:before {
+	content: "(WRP) ";
+}
+
+.Workers-Revolutionary-Party_abbr:before {
+	content: "WRP";
+}
+
+.Workers-Revolutionary-Party {
+    fill: rgb(180,0,1)!important;
+    background: rgb(180,0,1)!important;
+    color: #fff
+}
+
+.National-Health-Action-Party_label:before {
+	content: "(NHA) ";
+}
+
+.National-Health-Action-Party_abbr:before {
+	content: "NHA";
+}
+
+.National-Health-Action-Party {
+    fill: rgb(155,196,224)!important;
+    background: rgb(155,196,224)!important;
+    color: #fff
+}
+
+
+.Womens-Equality-Party_label:before {
+	content: "(WEP) ";
+}
+
+.Womens-Equality-Party_abbr:before {
+	content: "WEP";
+}
+
+.Womens-Equality-Party {
+    fill: rgb(110,45,145)!important;
+    background: rgb(110,45,145)!important;
+    color: #fff
+}
+
+
+.English-Democrats_label:before {
+	content: "(ED) ";
+}
+
+.English-Democrats_abbr:before {
+	content: "ED";
+}
+
+.English-Democrats {
+    fill: rgb(159,18,27)!important;
+    background: rgb(159,18,27)!important;
+    color: #fff
+}
+
+.Pirate-Party-UK_label:before {
+	content: "(Pirate) ";
+}
+
+.Pirate-Party-UK_abbr:before {
+	content: "Pirate";
+}
+
+.Pirate-Party-UK {
+    fill: rgb(247,141,207)!important;
+    background: rgb(247,141,207)!important;
+    color: #fff
+}
+
+.British-National-Party_label:before {
+	content: "(BNP) ";
+}
+
+.British-National-Party_abbr:before {
+	content: "BNP";
+}
+
+.British-National-Party {
+    fill: rgb(7,12,32)!important;
+    background: rgb(7,12,32)!important;
+    color: #fff
+}
+
+.Official-Monster-Raving-Loony-Party_label:before {
+	content: "(OMRLP) ";
+}
+
+.Official-Monster-Raving-Loony-Party_abbr:before {
+	content: "OMRLP";
+}
+
+.Official-Monster-Raving-Loony-Party {
+    fill: rgb(255,240,0)!important;
+    background: rgb(255,240,0)!important;
+    color: #fff
+}
+
+.The-Yorkshire-Party_label:before {
+	content: "(YP) ";
+}
+
+.The-Yorkshire-Party_abbr:before {
+	content: "YP";
+}
+
+.The-Yorkshire-Party {
+    fill: rgb(117,193,229)!important;
+    background: rgb(117,193,229)!important;
+    color: #fff
+}
+
+.Christian-Peoples-Alliance_label:before {
+	content: "(CPA) ";
+}
+
+.Christian-Peoples-Alliance_abbr:before {
+	content: "CPA";
+}
+
+.Christian-Peoples-Alliance {
+    fill: rgb(129,56,135)!important;
+    background: rgb(129,56,135)!important;
+    color: #fff
+}
+
+
+
+.Plaid-Cymru---The-Party-of-Wales_label:before {
+	content: "(PC) ";
+}
+
+.Plaid-Cymru---The-Party-of-Wales_abbr:before {
+	content: "PC";
+}
+
+.Plaid-Cymru---The-Party-of-Wales {
+    fill: rgb(53,136,56)!important;
+    background: rgb(53,136,56)!important;
+    color: #fff
+}
+
+
 .Christian-Party-Proclaiming-Christs-Lordship_label:before {
     content: "(CPPCL) ";
 }

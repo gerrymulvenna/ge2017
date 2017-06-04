@@ -995,7 +995,7 @@ function stripParty($name)
 {
     $endash = html_entity_decode('&#x2013;', ENT_COMPAT, 'UTF-8');
     $eacute = html_entity_decode('&eacute;', ENT_COMPAT, 'UTF-8');
-    $pattern = array('/\s+/', "/['\",()]/", "/$endash/u", "/$eacute/u");
+    $pattern = array('/\s+/', "/['\"&,.()]/", "/$endash/u", "/$eacute/u");
     $replacement = array('-', '', '_', 'e');
     return( preg_replace($pattern, $replacement, $name));
 }
