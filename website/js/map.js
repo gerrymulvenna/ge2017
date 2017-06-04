@@ -11,7 +11,7 @@ var post_label;
 var layerStyle = {
 	weight: 1,
 	color: '#34495e',
-	fillOpacity: 0.1,
+	fillOpacity: 0.2,
 	opacity: 1
 	};
 		
@@ -379,5 +379,14 @@ $(window).load(function(e) {
 				layerSelect(initlayer, false);
 			}
 	}
+	$.getJSON('/' + year + '/colors.json', function (data) {
+		$.each( data, function( wmc, color ) {
+			var thisLayer = getLayer(boundaries, 'CODE', wmc);
+			if (thisLayer)
+			{
+				thisLayer.setStyle({fillColor: color, fillOpacity: 0.9});
+			}
+		});		
+	});
 });
 

@@ -6,7 +6,7 @@ $dataRoot = "https://candidates.democracyclub.org.uk/media/candidates-";
 
 //buildRtree($elections, $outDir, $party_prefix, $party_colors);
 buildData($CSVs, $use_fields, $req_fields);
-buildPtree($elections);
+buildPtree($elections, $party_colors);
 buildCtree($elections, $party_prefix);
 
 
@@ -457,7 +457,7 @@ function classifyParties($root, $party_prefix)
 }
 
 //build JSON data for the jstree with Parties as the children of the root using wardinfo and the candidate JSON for each council
-function buildPTree($elections)
+function buildPTree($elections, $party_colors)
 {
     // get an index of ward and council info so we can build href preoperties for ward and candidate nodes
     echo "Building PARTIES data tree...<br>\n";
@@ -467,6 +467,7 @@ function buildPTree($elections)
 
         if (preg_match('/^parl\.(\d\d\d\d)-\d\d-\d\d$/', $election, $matches))
   	    {
+            $colors = array();
             $parties = array();
             $nations = array();
             $nation_names = array('E' => "England", "W"=>"Wales", "N" => "Northern Ireland", "S" => "Scotland");
@@ -511,6 +512,13 @@ function buildPTree($elections)
                         }
                         $root->no_candidates += 1;
                         $name = ($candidate->elected == "True") ? '<span class="elected">' . $candidate->name . '</span>' : $candidate->name;
+                        if ($candidate->elected == "True")
+                        {
+                            if (array_key_exists(stripParty($candidate->party_name), $party_colors))
+                            {
+                                $colors[substr($ward->post_id, 4)] = $party_colors[stripParty($candidate->party_name)];
+                            }
+                        }
                         $cand_node = new jstree_node(++$id,"candidate", $ward->post_label . ", " . $name );
                         $nation_node->children[] = $cand_node;
                         $cand_node->applyProperty('href', '/map/?year=' . $matches[1] . '&wmc=' . substr($ward->post_id, 4));
@@ -525,6 +533,10 @@ function buildPTree($elections)
             }
             extendParties($root);
             writeJSON($root, '../' . $matches[1] . "/party-tree.json");
+            if(count($colors) > 0)
+            {
+                writeJSON($colors, '../' . $matches[1] . "/colors.json");
+            }
         }
     }
 }
