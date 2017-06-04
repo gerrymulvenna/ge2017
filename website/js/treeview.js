@@ -1,3 +1,60 @@
+// configure the CONSTITUENCY tree
+$('#constituency-tree').jstree(
+{
+	'core' : 
+	{
+		'data' : 
+		{
+			"url" : "/2017/constituency-tree.json",
+			"dataType" : "json" // needed only if you do not supply JSON headers
+		}
+	},
+	"types" : 
+	{
+		"#" : 
+		{
+		  "max_children" : 1,
+		  "max_depth" : 4,
+		  "valid_children" : ["root"]
+		},
+		"root" : 
+		{
+			"icon" : "/website/image/hoc-32.png",
+			"valid_children" : ["constituency"]
+		},
+		"constitency" : 
+		{
+			"icon" : "/website/image/group-16.png",
+			"valid_children" : ["candidate"]
+		},
+		"candidate" : 
+		{
+			 "valid_children" : []
+		}
+	},
+	"plugins" : ["types", "theme", "search"]
+});
+
+
+// search the trees
+$(function () {
+  $("#constituency-tree").jstree({
+    "plugins" : [ "search" ]
+  });
+  var to = false;
+  $('#constituency-tree-search').keyup(function () {
+    if(to) { clearTimeout(to); }
+    to = setTimeout(function () {
+      var v = $('#constituency-tree-search').val();
+	  if (v.length >=3)
+	  {
+	      $('#constituency-tree').jstree(true).search(v);
+	  }
+    }, 250);
+  });
+});
+
+
 // configure the RESULTS tree
 $('#results-tree').jstree(
 {
@@ -132,10 +189,16 @@ $(function () {
 
 // interaction and events
 $('#party-tree').on("changed.jstree", function (e, data) {
-	console.log (data.node.original.properties);
   if (data.node.original.properties.hasOwnProperty('href'))
   {
 	  window.location = data.node.original.properties.href;
   }
+});
+
+$('#constituency-tree').on("changed.jstree", function (e, data) {
+	if (data.node.original.properties.hasOwnProperty('href'))
+	{
+		window.location = data.node.original.properties.href;
+	}
 });
 

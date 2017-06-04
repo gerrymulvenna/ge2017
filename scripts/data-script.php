@@ -4,178 +4,11 @@ require "functions.php";
 
 $dataRoot = "https://candidates.democracyclub.org.uk/media/candidates-";
 
-//$elected = getElectedCandidates($outDir, $elected_without_contest);
 //buildRtree($elections, $outDir, $party_prefix, $party_colors);
 buildData($CSVs, $use_fields, $req_fields);
 buildPtree($elections);
-//buildCtree($elections, $outDir, $party_prefix);
+buildCtree($elections, $party_prefix);
 
-//boundaryWards(array_keys($elections), $outDir, "boundary-wardinfo.csv");
-
-// process the transfer data in the STV results, includes a "Labour / Co-op" fudge
-function recordtransfers(&$tx, $data, $council, $ward)
-{
-    // first pass determine the donor at each stage
-    $donors = array();
-    $totals = array();
-    $max = 0;
-    foreach ($data as $item)
-    {
-        if ($item->Count_Number > $max)
-        {
-            $max = $item->Count_Number;
-        }
-        if ($item->Count_Number > 1)
-        {
-            if ($item->Transfers < 0)
-            {
-                $party = ($item->Party_Name == "Labour and Co-operative Party") ? "Labour Party" : $item->Party_Name;
-                $donors[$item->Count_Number] = $party;
-                addTransfers($tx, '.', $party, "total", 0 - $item->Transfers);
-                addTransfers($tx, $council, $party, "total", 0 - $item->Transfers);
-                addTransfers($tx, "$council/$ward", $party, "total",  0 - $item->Transfers);
-                $totals[$item->Count_Number] = 0 - $item->Transfers;
-            }
-        }
-    }
-
-    // second pass record transfers to recipient parties, accumulating subtotals of transfers so we can derive the non-transferred amounts in the next pass
-    $subtotals = array();
-    foreach ($data as $item)
-    {
-        if ($item->Count_Number > 1)
-        {
-            if ($item->Transfers > 0)
-            {
-                $party = ($item->Party_Name == "Labour and Co-operative Party") ? "Labour Party" : $item->Party_Name;
-                addTransfers($tx, '.', $donors[$item->Count_Number], $party, $item->Transfers);
-                addTransfers($tx, $council, $donors[$item->Count_Number], $party, $item->Transfers);
-                addTransfers($tx, "$council/$ward", $donors[$item->Count_Number], $party, $item->Transfers);
-                if (isset($subtotals[$item->Count_Number]))
-                {
-                    $subtotals[$item->Count_Number] += $item->Transfers;
-                }
-                else
-                {
-                    $subtotals[$item->Count_Number] = $item->Transfers;
-                }
-            }
-        }
-    }
-
-    // third pass to derive the non-transferred amounts 
-    for ($stage = 2; $stage <= $max; $stage++)
-    {
-        addTransfers($tx, '.', $donors[$stage], "Not transferred", $totals[$stage] - $subtotals[$stage]);
-        addTransfers($tx, $council, $donors[$stage], "Not transferred", $totals[$stage] - $subtotals[$stage]);
-        addTransfers($tx, "$council/$ward", $donors[$stage], "Not transferred", $totals[$stage] - $subtotals[$stage]);
-    }
-}
-
-function addTransfers(&$tx, $context, $donor, $recipient, $value)
-{
-    if (!array_key_exists($context, $tx))
-    {
-        $tx[$context] = array();
-    }
-    if (!array_key_exists($donor, $tx[$context]))
-    {
-        $tx[$context][$donor] = array();
-    }
-    if (array_key_exists($recipient, $tx[$context][$donor]))
-    {
-        $tx[$context][$donor][$recipient] += $value;
-    }
-    else
-    {
-        $tx[$context][$donor][$recipient] = $value;
-    }
-}
-
-class transfer
-{
-    public $donor;
-    public $donor_short;
-    public $recipient;
-    public $color;
-    public $amount;
-    public $total;
-
-    function __construct($donor, $short, $recipient, $color, $amount, $total)
-    {
-        $this->donor = $donor;
-        $this->donor_short = $short;
-        $this->recipient = $recipient;
-        $this->color = $color;
-        $this->amount = $amount;
-        $this->total = $total;
-    }
-}
-
-function saveTransfers($tx, $dir, $pp, $pc)
-{
-    foreach ($tx as $context => $data)
-    {
-        $json = array();
-        uasort($data, "cmpDonors");
-        foreach ($data as $donor => $transfers)
-        {
-            uksort($transfers, "cmpRecipients");
-            foreach ($transfers as $recipient => $value)
-            {
-                if ($recipient != "total")
-                {
-                    $json[] = new transfer($donor, $pp[stripParty($donor)], $pp[stripParty($recipient)], $pc[stripParty($donor)], 100 * $value / $data[$donor]["total"], $data[$donor]["total"]);
-                }
-            }
-        }
-        writeJSON($json, $dir . $context . "/transfers.json");
-    }
-}
-
-// sort by totals descending
-function cmpDonors($a, $b)
-{
-    if ($a["total"] == $b["total"])
-    {
-        return 0;
-    }
-    else
-    {
-        return ($a["total"] > $b["total"]) ? -1 : 1;
-    }
-}
-
-// sort in alphabetical order, but leave N/T last, total is ignored ultimately (note: needs uksort to sort by keys)
-function cmpRecipients($a, $b)
-{
-    if ($a == "total")
-    {
-        return 1;
-    }
-    if ($b == "total")
-    {
-        return -1;
-    }
-    if ($a == "Not transferred")
-    {
-        return 1;
-    }
-    if ($b == "Mot transferred")
-    {
-        return -1;
-    }
-    if ($a == $b)
-    {
-        return 0;
-    }
-    else
-    {
-        return ($a < $b) ? -1 : 1;
-    }
-}
-
-        
 
 //build a results tree to present party / councillor data at national, council and ward level
 function buildRTree($elections, $dataDir, $party_prefix, $party_colors)
@@ -561,30 +394,6 @@ function getSummary($cnode, $party_prefix, $party_colors)
     return($data);
 }
 
-// return an array of one or more parties who have the most seats in a given council, specified by the council node ($parent)
-// assumes there is an "icon" property in each party note specifying the party name (with hyphens)
-function getPartiesWithMostSeats($parent, $party_prefix, $party_colors)
-{
-    $parties = array();
-    $max = 0;
-    foreach($parent->children as $party)
-    {
-        if ($party->no_seats > $max)
-        {
-            $max = $party->no_seats;
-        }
-    }
-    foreach($parent->children as $party)
-    {
-        if ($party->no_seats == $max)
-        {
-            $name = $party->icon;
-            $parties[] = array('party' => $party_prefix[$name], 'color' => $party_colors[$name], 'no_seats' => $party->no_seats);
-        }
-    }
-    return($parties);
-}
-
 //recursive routine to apply prefix and class to party nodes
 function classifyParties($root, $party_prefix)
 {
@@ -646,8 +455,6 @@ function classifyParties($root, $party_prefix)
         }
     }
 }
-    
-
 
 //build JSON data for the jstree with Parties as the children of the root using wardinfo and the candidate JSON for each council
 function buildPTree($elections)
@@ -723,75 +530,59 @@ function buildPTree($elections)
 }
 
 
-//build JSON data for the jstree library using wardinfo and the candidate JSON for each council
-function buildCTree($elections, $dataDir, $party_prefix)
+//build JSON data for the jstree library using wardinfo and the candidate JSON for each constituency
+function buildCTree($elections, $party_prefix)
 {
-    $councils = array();
-    $wards = array();
-    $cwards = array();
-    $id = 0;
-    $ctotal = 0;
-
+    $nation_names = array('E' => "England", "W"=>"Wales", "N" => "Northern Ireland", "S" => "Scotland");
     // convert the candidate data to tree nodes indexed by cand_ward_code (post_id)
     echo "Building CANDIDATE data tree...<br>\n";
-    foreach ($elections as $election => $council_slug)
+    foreach ($elections as $election)
     {
-        if (preg_match('/^local\.(.+)\.2017-05-04$/', $election, $matches))
+        if (preg_match('/^parl\.(\d\d\d\d)-\d\d-\d\d$/', $election, $matches))
   	    {
-            $cdata = readJSON($dataDir. $election . ".json");
+            $nations = array();
+            $wards = array();
+            $cwards = array();
+            $id = 0;
+            $ctotal = 0;
+            $root = new jstree_node(++$id,"root","UK General Election " . $matches[1]);
+            $root->open();      // expand at startup
+
+            $cdata = readJSON('../' . $matches[1] . '/' . $election . ".json");
             foreach ($cdata->wards as $ward)
             {
                 if (!empty($ward->post_id))
                 {
-                    $node = new jstree_node(++$id, "ward", $ward->post_label);
+                    $initial = substr($ward->post_id, 4, 1);
+                    if (array_key_exists($initial, $nations))
+                    {
+                        $nation_node = $nations[$initial];
+                    }
+                    else
+                    {
+                        $nation_node = new jstree_node(++$id, "nation", $nation_names[$initial]);
+                        $nations[$initial] = $nation_node;
+                        $root->children[] = $nation_node;
+                    }
+                        
+                    $node = new jstree_node(++$id, "constituency", $ward->post_label);
                     $node->no_candidates = count($ward->candidates);
+                    $href = "/map/?year=" . $matches[1] . "&wmc=" . substr($ward->post_id, 4);
+                    $node->applyProperty("href", $href);
+                    $nation_node->children[] = $node;
+                    $nation_node->no_candidates += count($ward->candidates);
                     
-                    $node->children = convertCandidates ($ward->candidates, $id, $party_prefix);
+                    $node->children = convertCandidates ($ward->candidates, $id, $party_prefix, $href);
                     $id += count($node->children);
                     $ctotal += count($node->children);    // keep track of the total candidates
                     $cwards[$ward->post_id] = $node;
                 }
             }
+            $root->no_candidates = $ctotal;
+            extendNames($root);
+            writeJSON($root, "../" . $matches[1] . "/constituency-tree.json");
         }
     }
-
-    // convert the wardinfo data to tree nodes and build the tree structure incorporating the candidate nodes
-    $root = new jstree_node(++$id,"root","Scottish Councils");
-    $root->open();      // expand at startup
-    $root->no_candidates = $ctotal;
-    $wardinfo = readJSON($dataDir . "wardinfo.json");
-    foreach ($wardinfo->Wards as $ward)
-    {
-        if (!empty($ward->election))
-        {
-            // create or update the council node
-            if (array_key_exists($ward->election, $councils))
-            {
-                $root->no_seats += $ward->seats + 0;
-            }
-            else
-            {
-                $root->no_seats += $ward->seats + 0;
-                $node = new jstree_node(++$id,"council",$ward->council);
-                $councils[$ward->election] = $node;
-                $root->children[] = $node;
-            }
-            // add the ward node
-            $ward_node = new jstree_node(++$id, "ward", $ward->ward_name);
-            $ward_node->no_seats = $ward->seats;
-            $ward_node->properties["map_ward_code"] = $ward->map_ward_code;
-            $ward_node->properties["cand_ward_code"] = $ward->cand_ward_code;
-            $ward_node->properties["ward_no"] = $ward->ward_no;
-            $ward_node->children = $cwards[$ward->cand_ward_code]->children;
-            $ward_node->applyProperty("href", "/councils/" . $ward->election . ".php?ward=" . $ward->map_ward_code);
-            $ward_node->no_candidates = $cwards[$ward->cand_ward_code]->no_candidates;
-            $node->children[] = $ward_node;
-            $node->no_candidates += $ward_node->no_candidates;
-            $node->no_seats += $ward->seats + 0;
-        }
-    }
-    extendNames($root);
-    writeJSON($root, $dataDir . "council-tree.json");
 }
 
 // quick fix to show counts in party tree (recursive)
@@ -825,13 +616,13 @@ function extendParties($node)
         switch ($node->type)
         {
             case "root":
-                $node->text .= " (" . count($node->children) . " councils, " . $node->countType("ward") . " wards, " . $node->no_seats . " seats, " . $node->no_candidates . " candidates)";
+                $node->text .= " (" . $node->countType("constituency") . " constituencies, " . $node->no_candidates . " candidates)";
                 break;
-            case "council":
-                $node->text .= " (" . count($node->children) . " wards, " . $node->no_seats . " seats, " . $node->no_candidates . " candidates)";
+            case "nation":
+                $node->text .= " (" . count($node->children) . " constituencies, " . $node->no_candidates . " candidates)";
                 break;
-            case "ward":
-                $node->text .= " (" . $node->no_seats . " seats, " . $node->no_candidates . " candidates)";
+            case "constituency":
+                $node->text .= " (" . $node->no_candidates . " candidates)";
                 break;
         }
         foreach ($node->children as $child)
@@ -843,7 +634,7 @@ function extendParties($node)
 
 
 // convert an array of candidates to an array of jstree nodes
-function convertCandidates($candidates, $last_id, $party_prefix)
+function convertCandidates($candidates, $last_id, $party_prefix, $href)
 {
     $nodes = array();
     foreach ($candidates as $c)
@@ -854,6 +645,7 @@ function convertCandidates($candidates, $last_id, $party_prefix)
 
         $node = new jstree_node(++$last_id, "candidate", $prefix . $name);
         $node->icon = $party;        // icon property in jstree types plugin is interpreted as a class if it does not contain /
+        $node->applyProperty("href", $href);
         $node->no_candidates = 1;
         $nodes[] = $node;
     }
@@ -943,37 +735,6 @@ function buildData($csvfiles, $fields, $required)
     }
 }
 
-// once-off routine to get ward codes from boundary data files
-function boundaryWards($elections, $dir, $my_file)
-{
-    $wardinfo = array();
-    echo "Getting ward code mappings...<br>\n";
-    foreach ($elections as $election)
-    {
-        if (preg_match('/^local\.(.+)\.2017-05-04$/', $election, $matches))
-  	    {
-            $b_file = $dir . 'boundaries/'. $matches[1] . ".geojson";
-            $json = file_get_contents($b_file);
-            $data = json_decode($json);
-            foreach($data->features as $feature)
-            {
-                $prop = $feature->properties;
-                // this is the newer boundary data
-                if (isset($prop->Ward_Code))
-                {
-                    $wardinfo[] = array('council' => $prop->Council, 'ward_no' => $prop->Ward_No, 'post_label' => $prop->Ward_Name, 'post_id' => $prop->Ward_Code);
-                }
-                // this is the older type
-                elseif (isset($prop->CODE))
-                {
-                    $wardinfo[] = array('council' => $prop->FILE_NAME, 'ward_no' => $prop->Ward_no, 'post_label' => $prop->NAME, 'post_id' => $prop->CODE);
-                }
-            }
-        }
-    }
-    saveCSV($wardinfo, $my_file);
-}
-            
 
 function splitName($name)
 {

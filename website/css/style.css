@@ -542,7 +542,7 @@ input[id=show-menu]:checked~#cssmenu {
 	color: #444444;
 }
 
-#council-tree
+#constituency-tree
 {
     height: 400px;
     margin: auto;
@@ -550,9 +550,9 @@ input[id=show-menu]:checked~#cssmenu {
     padding-top: 10px;
 }
 
-#council-tree-search 
+#constituency-tree-search 
 {
-	width: 200px;
+	width: 225px;
 	display:block; 
 	padding:4px; 
 	border-radius:4px; 

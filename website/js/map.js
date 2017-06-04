@@ -167,7 +167,7 @@ function updateCandidates()
 				}});
 
 			var candidates = cData[0].candidates.sort(cmpSurnames);
-			var html = '<h3><a class="cand_anchor" name="candidates">' + post_label + '</a><br><span class="seats">' + candidates.length + ' candidates</span></h3>';
+			var html = '<h3><a class="cand_anchor" name="candidates">' + post_label + '</a><br><span class="seats">' + candidates.length + ' candidates in ' + y + '</span></h3>';
 			for (i = 0; i < candidates.length; i++) {
 				tw = (candidates[i].twitter_username) ? '<a href="http://twitter.com/' + candidates[i].twitter_username + '" target="~_blank"><i class="fa fa-twitter fa-fw" title="@' +  candidates[i].twitter_username + ' on Twitter"></i></a>' : '';
 				fb = (candidates[i].facebook_page_url) ? '<a href="' + candidates[i].facebook_page_url + '" target="_blank"><i class="fa fa-facebook fa-fw"  title="Facebook page"></i></a>' : '';
@@ -341,7 +341,9 @@ function selectTab(id)
 	var link = $(selector);
 	link.parent().addClass("current");
 	link.parent().siblings().removeClass("current");
-	$(".tab-content").not(id).css("display", "none");
+	var tab = $(id);
+	$(".tab-content").not(tab).css("display", "none");
+	tab.css('display', 'block');
 }
 
 $(document).ready(function() {

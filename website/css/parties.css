@@ -487,10 +487,10 @@
 .Democratic-Unionist-Party---DUP_label:before {
     content: "(DUP) ";
 }
-.Traditional-Unionist-Voice_label:before {
+.Traditional-Unionist-Voice---TUV_label:before {
     content: "(TUV) ";
 }
-.Workers-Party_label:before {
+.The-Workers-Party_label:before {
     content: "(WP) ";
 }
 .UK-Independence-Party_label:before {
@@ -520,7 +520,7 @@
 .Independent_label:before {
     content: "(Ind) ";
 }
-.Cannabis-Is-Safer-Than-Alcohol_label:before {
+.Cannabis-is-Safer-than-Alcohol_label:before {
     content: "(CISTA) ";
 }
 .Citizens-Independent-Social-Thought-Alliance_label:before {
@@ -566,10 +566,10 @@
 .Democratic-Unionist-Party---DUP_abbr:before {
     content: "DUP";
 }
-.Traditional-Unionist-Voice_abbr:before {
+.Traditional-Unionist-Voice---TUV_abbr:before {
     content: "TUV";
 }
-.Workers-Party_abbr:before {
+.The-Workers-Party_abbr:before {
     content: "WP";
 }
 .UK-Independence-Party_abbr:before {
@@ -599,7 +599,7 @@
 .Independent_abbr:before {
     content: "Ind";
 }
-.Cannabis-Is-Safer-Than-Alcohol_abbr:before {
+.Cannabis-is-Safer-than-Alcohol_abbr:before {
     content: "CISTA";
 }
 .Citizens-Independent-Social-Thought-Alliance_abbr:before {
@@ -633,7 +633,7 @@
     color: #fff
 }
 
-.Traditional-Unionist-Voice {
+.Traditional-Unionist-Voice---TUV {
     fill: #303F9F!important;
     background: #303F9F!important;
     color: #fff
@@ -669,7 +669,7 @@
     color: #fff
 }
 
-.Workers-Party {
+.The-Workers-Party {
     fill: #FF0000!important;
     background: #FF0000!important;
     color: #fff
@@ -771,7 +771,7 @@
     color: #fff
 }
 
-.Cannabis-Is-Safer-Than-Alcohol {
+.Cannabis-is-Safer-than-Alcohol {
     fill: #F84651!important;
     background: #F84651!important;
     color: #fff
