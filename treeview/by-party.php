@@ -11,8 +11,8 @@ $council_name = 'Browse data by party';  // used in the title and breadcrumb
 
 
 // function head($title, $mapName, $mapLat, $mapLong, $mapZoom, $mapProperty, $mapUnit, $mapWardDesc, $twimg)
-head("#council17 Browse data by council / ward / candidate - interface to crowd-sourced data for the Scottish Council elections 2017", $slug, 0, 0, 0, NULL, "/website/image/treeview1.png");
-navigation("Scottish Council elections 2017");
+head("#ge2017 Browse data by party - interface to crowd-sourced data for the UK General Election2017", $slug, 0, 0, 0, NULL, "/website/image/treeview1.png");
+navigation("UK General Election 2017");
 
 echo'<div class="content">
 

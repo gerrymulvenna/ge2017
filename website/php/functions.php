@@ -69,6 +69,7 @@ function navigation($title, $param2 = NULL, $param3 = NULL, $param4 = NULL)
         <div id="cssmenu">
             <ul>
                 <li><a href="/map/"><span>Map</span></a></li>
+                <li><a href="/treeview/"><span>Browse</span></a></li>
                 <li><a href="/postcode/"><span>Postcode</span></a></li>
             </ul>
         </div>';

@@ -7,6 +7,10 @@ if ($_SERVER['SERVER_ADDR'] == "216.92.68.138")
     exit();
 }
 
+$elections = array(
+"parl.2017-06-08",
+"parl.2015-05-07");
+
 $use_fields = array(
 "id",
 "name",
@@ -26,55 +30,10 @@ $use_fields = array(
 "theyworkforyou_url",
 "party_ec_id");
 
-// array of candidate IDs in the 3 uncontested wards
-$elected_without_contest = array("21540", "21541", "21542", "21375", "8755", "21376", "20966", "20967", "20968");
-
-// blank template for the CSV data file
-$blank_row = array(
-"id" => "",
-"name" => "",
-"party_name" =>"",
-"council_id" => "",
-"council_name" => "",
-"election" => "",
-"cand_ward_id" => "",
-"map_ward_id" => "",
-"ward_name" => "",
-"contested" => "",
-"elected" => "",
-"status" => "",
-"occurred_on_count" => "",
-"first_prefs" => "",
-"transfers02"=>"",
-"total_votes02"=>"",
-"transfers03"=>"",
-"total_votes03"=>"",
-"transfers04"=>"",
-"total_votes04"=>"",
-"transfers05"=>"",
-"total_votes05"=>"",
-"transfers06"=>"",
-"total_votes06"=>"",
-"transfers07"=>"",
-"total_votes07"=>"",
-"transfers08"=>"",
-"total_votes08"=>"",
-"transfers09"=>"",
-"total_votes09"=>"",
-"transfers10"=>"",
-"total_votes10"=>"",
-"transfers11"=>"",
-"total_votes11"=>"",
-"transfers12"=>"",
-"total_votes12"=>"",
-"electorate"=>"",
-"total_poll"=>"",
-"valid_poll"=>"",
-"rejected"=>"",
-"quota"=>"",
-"seats"=>"",
-"candidates"=>""
-);
+$req_fields = array(
+"id",
+"name",
+"elected");
 
 $CSVs = array(
 "https://candidates.democracyclub.org.uk/media/candidates-parl.2017-06-08.csv" => "parl.2017-06-08",
@@ -139,7 +98,6 @@ $party_colors = array(
 "West-Dunbartonshire-Community-Party" =>"#ED1A23",
 "RISE---Respect-Independence-Socialism-and-Environmentalism" =>"#F25D25",
 "Not-transferred" => "#000000");
-
 
 class Overview
 {
@@ -497,6 +455,7 @@ function readJSON($my_file)
     $handle = fopen($my_file, 'r') or die('Cannot open file:  '.$my_file);
     $json = fread($handle, filesize($my_file));
     fclose($handle);
+    echo "Reading $my_file<br>\n";
     $data = json_decode($json);
     return ($data);
 }

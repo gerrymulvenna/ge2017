@@ -6,8 +6,8 @@ $dataRoot = "https://candidates.democracyclub.org.uk/media/candidates-";
 
 //$elected = getElectedCandidates($outDir, $elected_without_contest);
 //buildRtree($elections, $outDir, $party_prefix, $party_colors);
-buildData($CSVs, $use_fields);
-//buildPtree($elections, $outDir, $party_prefix);
+buildData($CSVs, $use_fields, $req_fields);
+buildPtree($elections);
 //buildCtree($elections, $outDir, $party_prefix);
 
 //boundaryWards(array_keys($elections), $outDir, "boundary-wardinfo.csv");
@@ -650,114 +650,76 @@ function classifyParties($root, $party_prefix)
 
 
 //build JSON data for the jstree with Parties as the children of the root using wardinfo and the candidate JSON for each council
-function buildPTree($elections, $dataDir, $party_prefix)
+function buildPTree($elections)
 {
-    $parties = array();
-    $councils = array();
-    $wards = array();
-    $wardcode = array();
-    $wardname = array();
-    $cwards = array();
-    $id = 0;
-    $ctotal = 0;
-    $root = new jstree_node(++$id,"root","All Parties");
-    $root->open();      // expand at startup
-
     // get an index of ward and council info so we can build href preoperties for ward and candidate nodes
     echo "Building PARTIES data tree...<br>\n";
-    $wardinfo = readJSON($dataDir . "wardinfo.json");
-    foreach ($wardinfo->Wards as $ward)
-    {
-        if (!empty($ward->election))
-        {
-            $wardcode[$ward->cand_ward_code] = $ward->map_ward_code;
-            $wardname[$ward->cand_ward_code] = $ward->ward_name;
-        }
-    }
-
     // convert the candidate data to tree nodes indexed by cand_ward_code (post_id)
-    foreach ($elections as $election => $council)
+    foreach ($elections as $election)
     {
-        if (preg_match('/^local\.(.+)\.2017-05-04$/', $election, $matches))
+
+        if (preg_match('/^parl\.(\d\d\d\d)-\d\d-\d\d$/', $election, $matches))
   	    {
-            $cdata = readJSON($dataDir. $election . ".json");
+            $parties = array();
+            $nations = array();
+            $nation_names = array('E' => "England", "W"=>"Wales", "N" => "Northern Ireland", "S" => "Scotland");
+            $id = 0;
+            $root = new jstree_node(++$id,"root"," All Parties " . $matches[1]);
+            $root->open();      // expand at startup
+
+            $cdata = readJSON("../" . $matches[1] . "/" . $election . ".json");
             foreach ($cdata->wards as $ward)
             {
                 if (!empty($ward->post_id))
                 {
-                    $node = new jstree_node(++$id, "ward", $wardname[$ward->post_id]);
                     foreach ($ward->candidates as $candidate)
                     {
                         // create or update the party node
                         if (array_key_exists($candidate->party_name, $parties))
                         {
-                            if (array_key_exists($candidate->party_name . $election, $councils))
+                            if (array_key_exists($candidate->party_name . "nation_" . substr($ward->post_id, 4, 1) , $nations))
                             {
-                                if (array_key_exists($candidate->party_name . $election . $ward->post_label, $wards))
-                                {
-                                    $ward_node = $wards[$candidate->party_name . $election . $ward->post_label];
-                                    $party_node = $parties[$candidate->party_name];
-                                    $party_node->no_candidates += 1;
-                                }
-                                else
-                                {
-                                    $council_node = $councils[$candidate->party_name . $election];
-                                    $party_node = $parties[$candidate->party_name];
-                                    $party_node->no_candidates += 1;
-                                    $ward_node = new jstree_node(++$id,"ward",$wardname[$ward->post_id]);
-                                    $ward_node->properties['cand_map_code'] = $ward->post_id;
-                                    $wards[$candidate->party_name . $election . $ward->post_label] = $ward_node;
-                                    $council_node->children[] = $ward_node;
-                                }
+                                $nation_node = $nations[$candidate->party_name . "nation_" . substr($ward->post_id, 4, 1)];
+                                $party_node = $parties[$candidate->party_name];
+                                $party_node->no_candidates += 1;
                             }
                             else
                             {
+                                $nation_node = new jstree_node(++$id,"nation", $nation_names[substr($ward->post_id, 4, 1)]);
+                                $nations[$candidate->party_name . "nation_" . substr($ward->post_id, 4, 1)] = $nation_node;
                                 $party_node = $parties[$candidate->party_name];
+                                $party_node->children[] = $nation_node;
                                 $party_node->no_candidates += 1;
-                                $council_node = new jstree_node(++$id,"council",$council);
-                                $councils[$candidate->party_name . $election] = $council_node;
-                                $party_node->children[] = $council_node;
-                                $ward_node = new jstree_node(++$id,"ward",$wardname[$ward->post_id]);
-                                $ward_node->properties['cand_map_code'] = $ward->post_id;
-                                $wards[$candidate->party_name . $election . $ward->post_label] = $ward_node;
-                                $council_node->children[] = $ward_node;
                             }
                         }
                         else
                         {
+                            $nation_node = new jstree_node(++$id,"nation", $nation_names[substr($ward->post_id, 4, 1)]);
+                            $nations[$candidate->party_name . "nation_" . substr($ward->post_id, 4, 1)] = $nation_node;
                             $party_node = new jstree_node(++$id,"party", $candidate->party_name);
                             $party_node->no_candidates = 1;
-
                             $parties[$candidate->party_name] = $party_node;
+                            $party_node->children[] = $nation_node;
                             $root->children[] = $party_node;
-                            $council_node = new jstree_node(++$id,"council",$council);
-                            $councils[$candidate->party_name . $election] = $council_node;
-                            $party_node->children[] = $council_node;
-                            $ward_node = new jstree_node(++$id,"ward",$wardname[$ward->post_id]);
-                            $ward_node->properties['cand_map_code'] = $ward->post_id;
-                            $wards[$candidate->party_name . $election . $ward->post_label] = $ward_node;
-                            $council_node->children[] = $ward_node;
                         }
                         $root->no_candidates += 1;
                         $name = ($candidate->elected == "True") ? '<span class="elected">' . $candidate->name . '</span>' : $candidate->name;
-                        $cand_node = new jstree_node(++$id,"candidate",$name);
-                        $ward_node->children[] = $cand_node;
-                        $ward_node->applyProperty('href', '/councils/' . $matches[1] . ".php?ward=" . $wardcode[$ward_node->properties['cand_map_code']]);
+                        $cand_node = new jstree_node(++$id,"candidate", $ward->post_label . ", " . $name );
+                        $nation_node->children[] = $cand_node;
+                        $cand_node->applyProperty('href', '/map/?year=' . $matches[1] . '&wmc=' . substr($ward->post_id, 4));
                     }
                 }
             }
+            $root->sortbycandidate();
+            foreach ($root->children as $party_node)
+            {
+                $party = stripParty($party_node->text);
+                $party_node->icon = $party;        // icon property in jstree types plugin is interpreted as a class if it does not contain /
+            }
+            extendParties($root);
+            writeJSON($root, '../' . $matches[1] . "/party-tree.json");
         }
     }
-    $root->sortbycandidate();
-    foreach ($root->children as $party_node)
-    {
-        $party = stripParty($party_node->text);
-        $party_node->icon = $party;        // icon property in jstree types plugin is interpreted as a class if it does not contain /
-        $prefix = (array_key_exists($party, $party_prefix)) ? " (" . $party_prefix[$party] . ") " : " ";
-        $party_node->text = $prefix . $party_node->text;
-    }
-    extendParties($root);
-    writeJSON($root, $dataDir . "party-tree.json");
 }
 
 
@@ -835,15 +797,17 @@ function buildCTree($elections, $dataDir, $party_prefix)
 // quick fix to show counts in party tree (recursive)
 function extendParties($node)
 {
+
+    $cand = ($node->no_candidates == 1) ? "candidate" : "candidates";
     if (count($node->children))
     {
         switch ($node->type)
         {
             case "root":
-                $node->text .= " (" . $node->no_candidates . " candidate(s) from " . count($node->children). " political parties)";
+                $node->text .= " (" . $node->no_candidates . " $cand from " . count($node->children). " political parties)";
                 break;
             case "party":
-                $node->text .= " (" . $node->no_candidates . " candidate(s) contesting " . $node->countType("ward") . " ward(s) across " . count($node->children) . " council(s))";
+                $node->text = " " . $node->text . " (" . $node->no_candidates . ")";
                 break;
         }
         foreach ($node->children as $child)
@@ -899,7 +863,7 @@ function convertCandidates($candidates, $last_id, $party_prefix)
 
 
 // wards -> candidates 
-function buildData($csvfiles, $fields)
+function buildData($csvfiles, $fields, $required)
 {
     global $elected;
 
@@ -954,7 +918,7 @@ function buildData($csvfiles, $fields)
                         {
                             unset ($candidate[$ident]);
                         }
-                        elseif (empty($value))
+                        elseif (empty($value)  && !in_array($ident, $required))
                         {
                             unset ($candidate[$ident]);
                         }
@@ -1030,8 +994,9 @@ function splitName($name)
 function stripParty($name)
 {
     $endash = html_entity_decode('&#x2013;', ENT_COMPAT, 'UTF-8');
-    $pattern = array('/\s+/', "/['\",()]/", "/$endash/u");
-    $replacement = array('-', '', '_');
+    $eacute = html_entity_decode('&eacute;', ENT_COMPAT, 'UTF-8');
+    $pattern = array('/\s+/', "/['\",()]/", "/$endash/u", "/$eacute/u");
+    $replacement = array('-', '', '_', 'e');
     return( preg_replace($pattern, $replacement, $name));
 }
 

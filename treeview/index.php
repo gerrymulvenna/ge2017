@@ -1,3 +1,3 @@
 <?php
-header( 'Location: /treeview/by-council.php' )
+header( 'Location: /treeview/by-party.php' )
 ?>
