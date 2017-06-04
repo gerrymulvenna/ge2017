@@ -6,12 +6,21 @@ if (searchParams['year'])
 }
 
 var jsondata = [];
+var colors = [];
 var post_id;
 var post_label;
+var defaultStyle = {
+	weight: 1,
+	color: '#34495e',
+	fillColor: '#34495e',
+	fillOpacity: 0.2,
+	opacity: 1
+	};
+
 var layerStyle = {
 	weight: 1,
 	color: '#34495e',
-	fillOpacity: 0.2,
+	fillOpacity: 0.707,
 	opacity: 1
 	};
 		
@@ -33,8 +42,8 @@ function layerSelect(layer, by_event)
 {
 	boundaries.setStyle(layerStyle);
 	layer.setStyle({
-			weight: 2,
-			fillOpacity: 0.7
+			weight: 3,
+			fillOpacity: 1
 	});
 	var currentZoom = map.getZoom();
 	var maxZoom = (currentZoom <= 7) ? 7: currentZoom;
@@ -65,7 +74,7 @@ function onEachFeature(feature, layer) {
 }
 		
 var boundaries = new L.GeoJSON.AJAX('/2017/boundaries/uk-boundaries.geojson', {
-	style: layerStyle,
+	style: defaultStyle,
 	onEachFeature: onEachFeature
 	});
 
@@ -119,18 +128,6 @@ tips.update = function (msg) {
 	}
 };
 tips.addTo(map);
-
-// element to display a legend about colouring
-var legend = L.control();
-legend.setPosition("bottomleft");
-legend.onAdd = function (map) {
-	this._div = L.DomUtil.create('div', 'legend'); // create a div with a class "legend" inside the map
-	return this._div;
-};
-legend.update = function (msg) {
-	this._div.innerHTML = msg;
-};
-legend.addTo(map);
 
 
 // update candidate info for all years
@@ -346,6 +343,25 @@ function selectTab(id)
 	tab.css('display', 'block');
 }
 
+function applyColors(y)
+{
+	console.log("apply colors", y);
+	boundaries.setStyle(defaultStyle);
+	var count = 0;
+	$.getJSON('/' + y + '/colors.json', function (data) {
+		$.each( data, function( wmc, color ) {
+			var thisLayer = getLayer(boundaries, 'CODE', wmc);
+			count++;
+			if (thisLayer)
+			{
+				thisLayer.setStyle({fillColor: color, fillOpacity: 0.707});
+			}
+		});
+		var html = "Showing " + count + " of 650 constituencies";
+		$('#uk-' + y).html(html);
+	});
+}
+
 $(document).ready(function() {
     $(".tabs-menu a").click(function(event) {
         event.preventDefault();
@@ -366,11 +382,16 @@ $(document).ready(function() {
 					break;
 			}
 			setParam(post_id, year);
+			applyColors(year);
 		});
     });
 });
 
 $(window).load(function(e) {
+	if (searchParams['year'])
+	{
+		applyColors(searchParams['year']);
+	}
 	if (searchParams['wmc'])
 	{
 			var initlayer = getLayer (boundaries, 'CODE', searchParams['wmc']);
@@ -379,14 +400,5 @@ $(window).load(function(e) {
 				layerSelect(initlayer, false);
 			}
 	}
-	$.getJSON('/' + year + '/colors.json', function (data) {
-		$.each( data, function( wmc, color ) {
-			var thisLayer = getLayer(boundaries, 'CODE', wmc);
-			if (thisLayer)
-			{
-				thisLayer.setStyle({fillColor: color, fillOpacity: 0.9});
-			}
-		});		
-	});
 });
 
