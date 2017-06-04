@@ -3,11 +3,10 @@
 require "functions.php";
 
 $dataRoot = "https://candidates.democracyclub.org.uk/media/candidates-";
-$outDir = "../2017/";
 
 //$elected = getElectedCandidates($outDir, $elected_without_contest);
 //buildRtree($elections, $outDir, $party_prefix, $party_colors);
-buildData($CSVs, $outDir, $use_fields);
+buildData($CSVs, $use_fields);
 //buildPtree($elections, $outDir, $party_prefix);
 //buildCtree($elections, $outDir, $party_prefix);
 
@@ -900,79 +899,83 @@ function convertCandidates($candidates, $last_id, $party_prefix)
 
 
 // wards -> candidates 
-function buildData($csvfiles, $dir, $fields)
+function buildData($csvfiles, $fields)
 {
     global $elected;
 
     echo "Building CANDIDATE data files...<br>\n";
     foreach ($csvfiles as $csv => $election)
     {
-        $wards = array();
-        $wardIDs = array();   //used to keep track of which wards have been added
-        $candURL = 
-        $arrCand = getData($csv, $election);
-        // remove any dud lines
-        for ($i = 1; $i < count($arrCand); $i++)
+        if (preg_match('/^(.+)\.(\d\d\d\d)-\d\d-\d\d/', $election, $matches))
         {
-            if (count($arrCand[$i]) <= 1)
+            $wards = array();
+            $wardIDs = array();   //used to keep track of which wards have been added
+            $candURL = 
+            $arrCand = getData($csv, $election);
+            // remove any dud lines
+            for ($i = 1; $i < count($arrCand); $i++)
             {
-                unset ($arrCand[$i]);
-            }
-        }
-
-        $header = array_shift($arrCand);
-        array_walk($arrCand, '_combine_array', $header);
-
-        foreach ($arrCand as $candidate)
-        {
-            // fudge to get surname using part after last space
-            $names = splitName($candidate['name']);
-            if (!empty($names))
-            {
-                $candidate = array_merge($candidate, $names);
-            }
-            if (isset($elected[$candidate['id']]))
-            {
-                $candidate['elected'] = ($elected[$candidate['id']]) ? "True" : "False";
-            }
-            if (preg_match('/^WMC:/', $candidate['post_id']))
-            {
-                $post_id = $candidate['post_id'];
-            }
-            else
-            {
-                $post_id = 'WMC:' . $candidate['gss_code'];
-            }
-            if (!empty($post_id))
-            {
-                $post_label = $candidate['post_label'];
-                foreach($candidate as $ident => $value)
+                if (count($arrCand[$i]) <= 1)
                 {
-                    // only include important fields to minimise the size of the JSON
-                    if (!in_array($ident, $fields))
-                    {
-                        unset ($candidate[$ident]);
-                    }
-                    elseif (empty($value))
-                    {
-                        unset ($candidate[$ident]);
-                    }
+                    unset ($arrCand[$i]);
                 }
-                $key = array_search($post_id, $wardIDs);
-                if ($key === False)
+            }
+
+            $header = array_shift($arrCand);
+            array_walk($arrCand, '_combine_array', $header);
+
+            foreach ($arrCand as $candidate)
+            {
+                // fudge to get surname using part after last space
+                $names = splitName($candidate['name']);
+                if (!empty($names))
                 {
-                    $wardIDs[] = $post_id;
-                    $wards[] = array('post_id' => $post_id, 'post_label' => $post_label, 'election' => $election, 'candidates' => array($candidate));
+                    $candidate = array_merge($candidate, $names);
+                }
+                if (isset($elected[$candidate['id']]))
+                {
+                    $candidate['elected'] = ($elected[$candidate['id']]) ? "True" : "False";
+                }
+                if (preg_match('/^WMC:/', $candidate['post_id']))
+                {
+                    $post_id = $candidate['post_id'];
                 }
                 else
                 {
-                    array_push($wards[$key]['candidates'], $candidate);			   
+                    $post_id = 'WMC:' . $candidate['gss_code'];
+                }
+                if (!empty($post_id))
+                {
+                    $post_label = $candidate['post_label'];
+                    foreach($candidate as $ident => $value)
+                    {
+                        // only include important fields to minimise the size of the JSON
+                        if (!in_array($ident, $fields))
+                        {
+                            unset ($candidate[$ident]);
+                        }
+                        elseif (empty($value))
+                        {
+                            unset ($candidate[$ident]);
+                        }
+                    }
+                    $key = array_search($post_id, $wardIDs);
+                    if ($key === False)
+                    {
+                        $wardIDs[] = $post_id;
+                        $wards[] = array('post_id' => $post_id, 'post_label' => $post_label, 'election' => $election, 'candidates' => array($candidate));
+                    }
+                    else
+                    {
+                        array_push($wards[$key]['candidates'], $candidate);			   
+                    }
                 }
             }
+            $dc = new DemoClub_Wards();
+            $dc->wards = $wards;
+            // $matches[2] should contain the year from the election date
+            writeJSON($dc, '../'. $matches[2] . '/' . $election . ".json");
         }
-        $dc = new DemoClub_Wards();
-        $dc->wards = $wards;
-        writeJSON($dc, $dir . $election . ".json");
     }
 }
 

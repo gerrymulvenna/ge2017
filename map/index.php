@@ -22,7 +22,7 @@ echo '
 echo'
             <div id="tabs-container">
                 <ul class="tabs-menu">
-                    <li><a href="#candidates-2017">2017<br>candidates</a></li>
+                    <li><a name="tab1" href="#candidates-2017">2017<br>candidates</a></li>
                     <li><a href="#candidates-2015">2015<br>candidates</a></li>
                     <li><a href="#uk-2017">2017<br>All UK</a></li>
                     <li class="current"><a href="#uk-2015">2015<br>All UK</a></li>

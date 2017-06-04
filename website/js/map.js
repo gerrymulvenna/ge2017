@@ -5,17 +5,6 @@ if (searchParams['year'])
 	year = searchParams['year'];
 }
 
-switch(year)
-{
-	case 2015:
-		var electionDate = '2015-05-07';
-		break;
-	case 2017:
-	default:
-		var electionDate = '2017-06-08';
-		break;
-}
-
 var jsondata = [];
 var post_id;
 var post_label;
@@ -57,8 +46,10 @@ function layerSelect(layer, by_event)
 	info.update(layer.feature.properties);
 	post_id = layer.feature.properties.CODE;
 	post_label = layer.feature.properties.NAME.replace(/ (Co|Burgh|Boro) Const$/g, '');
-	updateCandidates(year);
-	tips.update('<a href="#candidates">Go to information below</a>');
+	updateCandidates();
+	updateTitle(post_label);
+	selectTab('#candidates-' + year);
+	tips.update('<a href="#tab1">Go to information below</a>');
 	if (by_event)
 	{
 		setParam(post_id, year);
@@ -95,10 +86,6 @@ L.tileLayer(
 
 boundaries.addTo(map);
 
-// detect if user agent is a mobile device and if so disable map zooming panning etc
-if ( /Android|webOS|iPhone|iPad|iPod|Blackberry|IEMobile|Opera Mini|Mobi/.test(navigator.userAgent)) {
-	console.log('mobile device detected');
-}
 // element to display council / ward information on map
 var info = L.control();
 info.onAdd = function (map) {
@@ -146,79 +133,68 @@ legend.update = function (msg) {
 legend.addTo(map);
 
 
-////// FUNCTIONS TO HANDLE HTML ELEMENT POPULATION OF CANDIDATE INFORMATION //////
-function updateCandidates(y)
+// update candidate info for all years
+function updateCandidates()
 {
-	// load all candidates info for the year
-	switch(y)
-	{
-		case "2015":
-			var electionDate = '2015-05-07';
-			break;
-		case "2017":
-		default:
-			var electionDate = '2017-06-08';
-			break;
-	}
+	var years = {"2015":"2015-05-07", "2017":"2017-06-08"};
+	$.each(years, function (y, electionDate) {
+		findInfo(y, 'parl.' + electionDate + '.json');   //populate jsondata
 
-	findInfo(2017, 'parl.' + electionDate + '.json');   //populate jsondata
+		var ack = '<div id="ack"><div id="dc-caption">This full set of candidate data was collated by</div><div id="dc-logo"><a href="http://democracyclub.org.uk"><img src="https://democracyclub.org.uk/static/dc_theme/images/logo-with-text-2017.png" width="250"></a></div><div id="disclaimer">DISCLAIMER The ordering of the candidates above is a best guess. The actual ballot paper for this ward may interpret the alphabetical ordering of candidates\' names differently.</div>';
+		this.innerHTML = '';
+		var tw;
+		var fb;
+		var fbp;
+		var web;
+		var linkedin;
+		var wiki;
+		var status;
+		var party;
 
-	var ack = '<div id="ack"><div id="dc-caption">This full set of candidate data was collated by</div><div id="dc-logo"><a href="http://democracyclub.org.uk"><img src="https://democracyclub.org.uk/static/dc_theme/images/logo-with-text-2017.png" width="250"></a></div><div id="disclaimer">DISCLAIMER The ordering of the candidates above is a best guess. The actual ballot paper for this ward may interpret the alphabetical ordering of candidates\' names differently.</div>';
-	this.innerHTML = '';
-	var tw;
-	var fb;
-	var fbp;
-	var web;
-	var linkedin;
-	var wiki;
-	var status;
-	var party;
+		var cData = getObjects(jsondata, 'post_id', 'WMC:' + post_id);
 
-	var cData = getObjects(jsondata, 'post_id', 'WMC:' + post_id);
+		$('#candidates-' + y).css('display','block');
+		if (cData.length > 0)
+		{
+			$.ajax({
+				'async': false,
+				'global': false,
+				'url': '/' + year + '/results/' + post_id + '.json?' + new Date().getTime(),
+				'dataType': "json",
+				'success': function (data) {
+					var cinfo = data.Constituency.countInfo;
+					var turnout = ((parseInt(cinfo.Total_Poll)/parseInt(cinfo.Total_Electorate)) * 100).toFixed(2);
+					$("#electorate").html("<p>Electorate: " + numberWithCommas(parseInt(cinfo.Total_Electorate)) + ", Turnout: " + numberWithCommas(parseInt(cinfo.Total_Poll)) + " (" + turnout + "%), Valid votes: " + numberWithCommas(parseInt(cinfo.Valid_Poll)) + ", Quota: " + numberWithCommas(quota) + "</p>\n");
+				}});
 
-	$('#candidates-' + y).css('display','block');
-	if (cData.length > 0)
-	{
-		var result ="";
-		$.ajax({
-			'async': false,
-			'global': false,
-			'url': '/' + year + '/results/' + post_id + '.json?' + new Date().getTime(),
-			'dataType': "json",
-			'success': function (data) {
-				var cinfo = data.Constituency.countInfo;
-				var turnout = ((parseInt(cinfo.Total_Poll)/parseInt(cinfo.Total_Electorate)) * 100).toFixed(2);
-				$("#electorate").html("<p>Electorate: " + numberWithCommas(parseInt(cinfo.Total_Electorate)) + ", Turnout: " + numberWithCommas(parseInt(cinfo.Total_Poll)) + " (" + turnout + "%), Valid votes: " + numberWithCommas(parseInt(cinfo.Valid_Poll)) + ", Quota: " + numberWithCommas(quota) + "</p>\n");
-			}});
-
-		var candidates = cData[0].candidates.sort(cmpSurnames);
-		var html = '<h3><a class="cand_anchor" name="candidates">' + post_label + '</a><br><span class="seats">' + candidates.length + ' candidates</span></h3>';
-		for (i = 0; i < candidates.length; i++) {
-			tw = (candidates[i].twitter_username) ? '<a href="http://twitter.com/' + candidates[i].twitter_username + '" target="~_blank"><i class="fa fa-twitter fa-fw" title="@' +  candidates[i].twitter_username + ' on Twitter"></i></a>' : '';
-			fb = (candidates[i].facebook_page_url) ? '<a href="' + candidates[i].facebook_page_url + '" target="_blank"><i class="fa fa-facebook fa-fw"  title="Facebook page"></i></a>' : '';
-			fbp = (candidates[i].facebook_personal_url) ? '<a href="' + candidates[i].facebook_personal_url + '" target="_blank"><i class="fa fa-facebook-official fa-fw" title="Personal Facebook profile"></i></a>' : '';
-			web = (candidates[i].homepage_url) ? '<a href="' + candidates[i].homepage_url + '" target="_blank"><i class="fa fa-globe fa-fw" title="Homepage for this candidate"></i></a>' : '';
-			linkedin = (candidates[i].linkedin_url) ? '<a href="' + candidates[i].linkedin_url + '" target="_blank"><i class="fa fa-linkedin fa-fw" title="This candidate has a LinkedIn profile"></i></a>' : '';
-			wiki = (candidates[i].wikipedia_url) ? '<a href="' + candidates[i].wikipedia_url + '" target="_blank"><i class="fa fa-wikipedia-w fa-fw" title="This candidate has an entry on Wikipedia"></i></a>' : '';
-			edit = '<a href="http://candidates.democracyclub.org.uk/person/' + candidates[i].id + '/" target="_blank"><i class="fa fa-check-square-o fa-fw" title="View or edit the Democracy Club details for this candidate"></i></a>';
-			switch(candidates[i].elected)
-			{
-				case "True":
-					status = "elected";
-					break;
-				case "False":
-					status = "excluded";
-					break;
-				default:
-					status = "unkonwn";
+			var candidates = cData[0].candidates.sort(cmpSurnames);
+			var html = '<h3><a class="cand_anchor" name="candidates">' + post_label + '</a><br><span class="seats">' + candidates.length + ' candidates</span></h3>';
+			for (i = 0; i < candidates.length; i++) {
+				tw = (candidates[i].twitter_username) ? '<a href="http://twitter.com/' + candidates[i].twitter_username + '" target="~_blank"><i class="fa fa-twitter fa-fw" title="@' +  candidates[i].twitter_username + ' on Twitter"></i></a>' : '';
+				fb = (candidates[i].facebook_page_url) ? '<a href="' + candidates[i].facebook_page_url + '" target="_blank"><i class="fa fa-facebook fa-fw"  title="Facebook page"></i></a>' : '';
+				fbp = (candidates[i].facebook_personal_url) ? '<a href="' + candidates[i].facebook_personal_url + '" target="_blank"><i class="fa fa-facebook-official fa-fw" title="Personal Facebook profile"></i></a>' : '';
+				web = (candidates[i].homepage_url) ? '<a href="' + candidates[i].homepage_url + '" target="_blank"><i class="fa fa-globe fa-fw" title="Homepage for this candidate"></i></a>' : '';
+				linkedin = (candidates[i].linkedin_url) ? '<a href="' + candidates[i].linkedin_url + '" target="_blank"><i class="fa fa-linkedin fa-fw" title="This candidate has a LinkedIn profile"></i></a>' : '';
+				wiki = (candidates[i].wikipedia_url) ? '<a href="' + candidates[i].wikipedia_url + '" target="_blank"><i class="fa fa-wikipedia-w fa-fw" title="This candidate has an entry on Wikipedia"></i></a>' : '';
+				edit = '<a href="http://candidates.democracyclub.org.uk/person/' + candidates[i].id + '/" target="_blank"><i class="fa fa-check-square-o fa-fw" title="View or edit the Democracy Club details for this candidate"></i></a>';
+				switch(candidates[i].elected)
+				{
+					case "True":
+						status = "elected";
+						break;
+					case "False":
+						status = "excluded";
+						break;
+					default:
+						status = "unkonwn";
+				}
+				party = candidates[i].party_name.replace(/\s+/g, "-").replace(/[\'\"&,.()]/g,"").replace(/\u2013/g, '_').replace(/\u00e9/g, 'e');
+				html += "<div class=\"votes " + party + "\"></div><div id=\"candidate " + candidates[i].id + "\" class=\"tooltip " + party + "_label\"><span class=\"tooltiptext\">" + candidates[i].party_name + "</span>" + '<span class="' + status +'">' + candidates[i].name + "</span><div class=\"cand-icons\">" + tw + fb + fbp + web  + linkedin + wiki  + edit + "</div></div><br/>";
 			}
-			party = candidates[i].party_name.replace(/\s+/g, "-").replace(/[\'\"&,.()]/g,"").replace(/\u2013/g, '_').replace(/\u00e9/g, 'e');
-			html += "<div class=\"votes " + party + "\"></div><div id=\"candidate " + candidates[i].id + "\" class=\"tooltip " + party + "_label\"><span class=\"tooltiptext\">" + candidates[i].party_name + "</span>" + '<span class="' + status +'">' + candidates[i].name + "</span><div class=\"cand-icons\">" + tw + fb + fbp + web  + linkedin + wiki  + edit + "</div></div><br/>";
+			html += ack;
+			$('#candidates-' + y).html(html);
 		}
-		html += ack;
-		$('#candidates-' + y).html(html);
-		updateTitle(cData.post_label);
-	}
+	});
 }
 
 
@@ -260,18 +236,14 @@ function updateTitle (constituency)
 // request candidate info for the specified year (can use this for other request by changing filename arg)
 // outputs the parse Json responseText to global var jsondata
 function findInfo(year, filename) {
-    var request = new XMLHttpRequest();
-    var path = '/' + year + '/' + filename;
-    request.onreadystatechange = function() {
-        if (request.readyState == 4 && request.status >= 200 && request.status < 400) {
-            jsondata = JSON.parse(request.responseText);
-        }
-    };
-    request.open('GET', path, false);
-    request.send();
-    request.onerror = function() {
-        candidates.innerHTML = 'Connection error retrieving data from the server'
-    };
+	$.ajax({
+		'async': false,
+		'global': false,
+		'url': '/' + year + '/' + filename,
+		'dataType': "json",
+		'success': function (data) {
+			jsondata = data;
+		}});
 }
 
 // examine an object array (obj) for a key (key) matching a value (val) and return the matching object
@@ -362,6 +334,17 @@ function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
+// handle the selection / de-selection of tab-menu
+// id: selected tab-menu id including # prefix
+function selectTab(id)
+{
+	var selector = ".tabs-menu a[href='" + id + "']";
+	var link = $(selector);
+	link.parent().addClass("current");
+	link.parent().siblings().removeClass("current");
+	$(".tab-content").not(id).css("display", "none");
+}
+
 $(document).ready(function() {
     $(".tabs-menu a").click(function(event) {
         event.preventDefault();
@@ -369,29 +352,19 @@ $(document).ready(function() {
         $(this).parent().siblings().removeClass("current");
         var tab = $(this).attr("href");
         $(".tab-content").not(tab).css("display", "none");
-		$(tab).html("");
         $(tab).fadeIn(400, function(){
 			switch(tab)
 			{
 				case '#candidates-2017':
-					year = "2017";
-					setParam(post_id, year);
-					updateCandidates(year);
-					break;
 				case "#uk-2017":
 					year = "2017";
-					setParam(post_id, year);
 					break;
 				case '#candidates-2015':
-					year = "2015";
-					setParam(post_id, year);
-					updateCandidates(year);
-					break;
 				case "#uk-2015":
 					year = "2015";
-					setParam(post_id, year);
 					break;
 			}
+			setParam(post_id, year);
 		});
     });
 });

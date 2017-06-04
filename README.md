@@ -1,11 +1,8 @@
-# Scottish council elections 2017
-Open Data frameworks, datasets and front-end for 2017 council elections in the 32 Scottish councils
+# UK General Election 2017
+Front-end for 2017 UK General Election data
 
 ## about the project
-In Scotland, the Scottish Parliament has responsibility to oversee the local government elections, but there are very few joined-up resources to look at the council elections as a whole, 
-as each council runs their own election and publishes data on their own website. This is one citizen's attempt to provide a map-based interface to the candidates in each ward, using the
-crowd-sourced data extracted from the SOPNs (Statement of Persons Notified) produced as PDFs by individual councils.
-
+The Democracy Club does great work collating candidate data for all elections in the UK. This project is to provide a website front-end to that candidate data and results data gathered by the website author.
 
 ## author
 Find Gerry Mulvenna at @gerrymulvenna on Twitter
@@ -17,11 +14,10 @@ This site took its starting point from the work carried out by Bob Harper for th
 For more details on the Democracy Club data see https://candidates.democracyclub.org.uk/help/api
 
 ## the map data
-Map data came primarily from the Local Government Boundary Commission for Scotland
-* http://www.lgbc-scotland.gov.uk/maps/datafiles/index_1995_on.asp
-
-with the top-level Scottish council boundaries coming from the Ordnance Survey "boundary line" package
+Map data came primarily from the Ordnance Survey borderline package
 https://www.ordnancesurvey.co.uk/business-and-government/help-and-support/products/boundary-line.html
+and OpenDataNI
+https://www.opendatani.gov.uk/dataset/osni-open-data-50k-admin-boundaries-parliamentary-constituencies-20081
 
 The open source application QGIS was used to convert the shapefiles into GEOJSON format with latitute longitude coordinates (EPSG:4326)
 http://www.qgis.org/en/site/forusers/download.html
