@@ -91,9 +91,8 @@ $party_prefix = array(
 "Progressive-Unionist-Party" => "PUP",
 "NI21" => "NI21",
 "Cannabis-is-Safer-than-Alcohol" => "CISTA",
+"Speaker-seeking-re-election" => "Speaker",
 "Not-transferred" => "N/T");
-
-
 
 
 // this array of party abbreviations mirrors the classes in parties.css
@@ -158,6 +157,7 @@ $party_colors = array(
 "Animal-Welfare-Party" => "#ce1d99",
 "Citizens-Independent-Social-Thought-Alliance" => "#F84651",
 "Cannabis-is-Safer-than-Alcohol" => "#F84651",
+"Speaker-seeking-re-election" => "#afeeee",
 "Not-transferred" => "#000000");
 
 class Overview

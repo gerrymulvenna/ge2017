@@ -1,3 +1,17 @@
+.Speaker-seeking-re-election_label:before {
+	content: "(Speaker) ";
+}
+
+.Speaker-seeking-re-election_abbr:before {
+	content: "Speaker";
+}
+
+.Speaker-seeking-re-election {
+    fill: #afeeee!important;
+    background: #afeeee!important;
+    color: #fff
+}
+
 .Workers-Revolutionary-Party_label:before {
 	content: "(WRP) ";
 }

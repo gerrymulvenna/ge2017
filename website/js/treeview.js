@@ -1,3 +1,19 @@
+var searchParams = getSearchParams();
+var year = 2017;
+if (searchParams['year'])
+{
+	year = searchParams['year'];
+}
+
+// cross-browser search param functions
+function getSearchParams(k){
+ var p={};
+ location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi,function(s,k,v){p[k]=v})
+ return k?p[k]:p;
+}
+
+
+
 // configure the CONSTITUENCY tree
 $('#constituency-tree').jstree(
 {
@@ -5,7 +21,7 @@ $('#constituency-tree').jstree(
 	{
 		'data' : 
 		{
-			"url" : "/2017/constituency-tree.json",
+			"url" : "/" + year + "/constituency-tree.json",
 			"dataType" : "json" // needed only if you do not supply JSON headers
 		}
 	},
@@ -114,7 +130,7 @@ $('#party-tree').jstree(
 	{
 		'data' : 
 		{
-			"url" : "/2017/party-tree.json",
+			"url" : "/" + year + "/party-tree.json",
 			"dataType" : "json" // needed only if you do not supply JSON headers
 		}
 	},

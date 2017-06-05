@@ -345,7 +345,6 @@ function selectTab(id)
 
 function applyColors(y)
 {
-	console.log("apply colors", y);
 	boundaries.setStyle(defaultStyle);
 	var count = 0;
 	$.getJSON('/' + y + '/colors.json', function (data) {

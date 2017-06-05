@@ -6,7 +6,7 @@ $dataRoot = "https://candidates.democracyclub.org.uk/media/candidates-";
 
 //buildRtree($elections, $outDir, $party_prefix, $party_colors);
 buildData($CSVs, $use_fields, $req_fields);
-buildPtree($elections, $party_colors);
+buildPtree($elections, $party_prefix, $party_colors);
 buildCtree($elections, $party_prefix);
 
 
@@ -457,7 +457,7 @@ function classifyParties($root, $party_prefix)
 }
 
 //build JSON data for the jstree with Parties as the children of the root using wardinfo and the candidate JSON for each council
-function buildPTree($elections, $party_colors)
+function buildPTree($elections, $party_prefix, $party_colors)
 {
     // get an index of ward and council info so we can build href preoperties for ward and candidate nodes
     echo "Building PARTIES data tree...<br>\n";
@@ -490,6 +490,7 @@ function buildPTree($elections, $party_colors)
                                 $nation_node = $nations[$candidate->party_name . "nation_" . substr($ward->post_id, 4, 1)];
                                 $party_node = $parties[$candidate->party_name];
                                 $party_node->no_candidates += 1;
+                                $nation_node->no_candidates += 1;
                             }
                             else
                             {
@@ -497,6 +498,7 @@ function buildPTree($elections, $party_colors)
                                 $nations[$candidate->party_name . "nation_" . substr($ward->post_id, 4, 1)] = $nation_node;
                                 $party_node = $parties[$candidate->party_name];
                                 $party_node->children[] = $nation_node;
+                                $nation_node->no_candidates = 1;
                                 $party_node->no_candidates += 1;
                             }
                         }
@@ -506,6 +508,7 @@ function buildPTree($elections, $party_colors)
                             $nations[$candidate->party_name . "nation_" . substr($ward->post_id, 4, 1)] = $nation_node;
                             $party_node = new jstree_node(++$id,"party", $candidate->party_name);
                             $party_node->no_candidates = 1;
+                            $nation_node->no_candidates = 1;
                             $parties[$candidate->party_name] = $party_node;
                             $party_node->children[] = $nation_node;
                             $root->children[] = $party_node;
@@ -518,6 +521,10 @@ function buildPTree($elections, $party_colors)
                             {
                                 $colors[substr($ward->post_id, 4)] = $party_colors[stripParty($candidate->party_name)];
                             }
+                            // use the elected field to keep a tally of seats won by each party
+                            $nation_node->no_seats += 1;
+                            $party_node->no_seats += 1;
+                            $root->no_seats += 1;
                         }
                         $cand_node = new jstree_node(++$id,"candidate", $ward->post_label . ", " . $name );
                         $nation_node->children[] = $cand_node;
@@ -525,6 +532,25 @@ function buildPTree($elections, $party_colors)
                     }
                 }
             }
+            // generate the scotland-level overview JSON, a summary of the party standings across all councils
+            $overview = new Overview("UK General Election " . $matches[1], "ge-" . $matches[1], "root");
+            $overview->no_seats = $root->no_seats;
+            $overview->no_candidates = $root->no_candidates;
+            for ($i = 0; $i < count($root->children); $i++)   
+            {
+                if ($root->children[$i]->no_seats > 0)
+                {
+                    $name = stripParty($root->children[$i]->text);
+                    $short = $party_prefix[$name];
+                    $color = $party_colors[$name];
+                    $party = new Party($name, $short, $color);
+                    $party->no_seats = $root->children[$i]->no_seats;
+                    $party->no_candidates = $root->children[$i]->no_candidates;
+                    $overview->parties[] = $party;
+                }
+            }
+            writeJSON($overview, "../" . $matches[1] . "/overview.json");
+
             $root->sortbycandidate();
             foreach ($root->children as $party_node)
             {
@@ -533,10 +559,7 @@ function buildPTree($elections, $party_colors)
             }
             extendParties($root);
             writeJSON($root, '../' . $matches[1] . "/party-tree.json");
-            if(count($colors) > 0)
-            {
-                writeJSON($colors, '../' . $matches[1] . "/colors.json");
-            }
+            writeJSON($colors, '../' . $matches[1] . "/colors.json");
         }
     }
 }
@@ -601,16 +624,23 @@ function buildCTree($elections, $party_prefix)
 function extendParties($node)
 {
 
-    $cand = ($node->no_candidates == 1) ? "candidate" : "candidates";
     if (count($node->children))
     {
         switch ($node->type)
         {
             case "root":
-                $node->text .= " (" . $node->no_candidates . " $cand from " . count($node->children). " political parties)";
+                $cand = ($node->no_candidates == 1) ? "candidate" : "candidates";
+                $node->text .= " (" . $node->no_candidates . " $cand from " . count($node->children). " political parties, " . $node->no_seats . " of 650 results known)";
+                break;
+            case "nation":
+                $cand = ($node->no_candidates == 1) ? "candidate" : "candidates";
+                $word = ($node->no_seats == 1) ? "seat" : "seats";
+                $node->text = " " . $node->text . " (" . $node->no_seats . " " . $word . ", " . $node->no_candidates . " " . $cand .")";
                 break;
             case "party":
-                $node->text = " " . $node->text . " (" . $node->no_candidates . ")";
+                $cand = ($node->no_candidates == 1) ? "candidate" : "candidates";
+                $word = ($node->no_seats == 1) ? "seat" : "seats";
+                $node->text = " " . $node->text . " (" . $node->no_seats . " " . $word . ", " . $node->no_candidates . " " . $cand .")";
                 break;
         }
         foreach ($node->children as $child)
