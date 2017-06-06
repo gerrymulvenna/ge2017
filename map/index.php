@@ -12,7 +12,7 @@ $mapZoom = 5;                // zoom level starting position
 
 
 // function head($title, $mapName, $mapLat, $mapLong, $mapZoom, $mapProperty, $mapUnit, $mapWardDesc, $twimg)
-head("#ge2017 - Map-based interface to crowd-sourced data for the UK General Election 2017", $mapLat, $mapLong, $mapZoom, "/website/image/scotland.png");
+head("#ge2017 - Map-based interface to crowd-sourced data for the UK General Election 2017", $mapLat, $mapLong, $mapZoom, "/website/image/ge2017map.jpg");
 navigation("UK General Election 2017");
 echo '
 <div class="content">

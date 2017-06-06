@@ -1,6 +1,6 @@
 <?php
 
-function head($title, $mapLat, $mapLong, $mapZoom, $twimg = '/website/image/scotland.png')
+function head($title, $mapLat, $mapLong, $mapZoom, $twimg = '/website/image/ge2017map.jpg')
 {
     $desc = "Map-based interface to UK General Election data 2017";
     $url = $_SERVER['REQUEST_URI'];
@@ -38,7 +38,7 @@ function head($title, $mapLat, $mapLong, $mapZoom, $twimg = '/website/image/scot
 		<link rel="stylesheet" type="text/css" href="enhanced.css" />
 		<![endif]-->
     <meta name="description" content="' . $desc . '" />
-    <meta name="keywords" content="Scotland, local elections, open data, 2017, crowdsource, single transferable vote, stv, ward, candidate, voting, #council17, electoral"
+    <meta name="keywords" content="United Kingdom, general election, open data, #GE2017, politics, democracy club, parliamentary candidates, voting, first-past-the-post, Westminster"
     />
     <meta name="author" content="Gerry Mulvenna">
     <meta name="robots" content="index, follow">
