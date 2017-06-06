@@ -482,6 +482,11 @@ function buildPTree($elections, $party_prefix, $party_colors)
                 {
                     foreach ($ward->candidates as $candidate)
                     {
+                        // for the purposes of these summary data, let's treat "Labour-and-Co-operative-Party" as the same as "Labour Party"
+                        if ($candidate->party_name == "Labour and Co-operative Party")
+                        {
+                            $candidate->party_name = "Labour Party";
+                        }
                         // create or update the party node
                         if (array_key_exists($candidate->party_name, $parties))
                         {

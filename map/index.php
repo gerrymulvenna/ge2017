@@ -30,8 +30,18 @@ echo'
                 <div class="tab">
                     <div id="candidates-2017" class="tab-content"></div>
                     <div id="candidates-2015" class="tab-content"></div>
-                    <div id="uk-2017" class="tab-content"></div>
-                    <div id="uk-2015" class="tab-content"></div>
+                    <div id="uk-2017" class="tab-content">
+                        <div id="uk2017header">
+                        </div>
+                        <div id="uk2017chart">
+                        </div>
+                    </div>
+                    <div id="uk-2015" class="tab-content">
+                        <div id="uk2015header">
+                        </div>
+                        <div id="uk2015chart">
+                        </div>
+                    </div>
                 </div>
             </div>
 		</div>';

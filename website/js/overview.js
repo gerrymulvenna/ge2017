@@ -24,7 +24,7 @@ function overview_by_var(year, primary, secondary, singular, plural, refvar, tar
             $.ajax({
                 'async': false,
                 'global': false,
-                'url': '/' + year + '/overview.json',
+                'url': '/' + year + '/overview.json?' + new Date().getTime(),
                 'dataType': "json",
                 'success': function (data) {
                     json = data;

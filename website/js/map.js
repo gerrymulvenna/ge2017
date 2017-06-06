@@ -1,5 +1,5 @@
 var searchParams = getSearchParams();
-var year = 2017;
+var year = '2017';
 if (searchParams['year'])
 {
 	year = searchParams['year'];
@@ -369,9 +369,7 @@ function applyColors(y)
 				thisLayer.setStyle({fillColor: color, fillOpacity: 0.707});
 			}
 		});
-		var chart = 'uk' + year + 'chart';
-		var html = 'Showing ' + count + ' of 650 constituencies (' + year + ')<div id="' + chart + '"></div>';
-		$('#uk-' + y).html(html);
+		$('#uk' + y + 'header').html('<p>Showing ' + count + ' of 650 constituencies (' + year + ')</p>');
 	});
 }
 
@@ -382,8 +380,8 @@ $(document).ready(function() {
         $(this).parent().siblings().removeClass("current");
         var tab = $(this).attr("href");
         $(".tab-content").not(tab).css("display", "none");
-		$(tab).css("display", "block");
-//        $(tab).fadeIn(400, function(){
+//		$(tab).css("display", "block");
+        $(tab).fadeIn(400, function(){
 			var params = {};
 			switch(tab)
 			{
@@ -412,14 +410,17 @@ $(document).ready(function() {
 			}
 			params['year'] = year;
 			setParam(params);
-			$(".tab-content").each(function(i, obj) {
-				console.log(obj);
-			});
-//		});
+		});
     });
 });
 
 $(window).load(function(e) {
+	searchParams = getSearchParams();
+	year = '2017';
+	if (searchParams['year'])
+	{
+		year = searchParams['year'];
+	}
 	applyColors(year);
 	if (searchParams['wmc'])
 	{
@@ -431,7 +432,8 @@ $(window).load(function(e) {
 	}
 	else
 	{
-		selectTab("#uk-2017");
+		selectTab("#uk-" + year);
+		overview_by_var(year, "no_seats", "name", "seat", "seats", "no_seats", '#uk' + year + 'chart');
 	}
 });
 
