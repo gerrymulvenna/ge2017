@@ -370,7 +370,7 @@ function applyColors(y)
 			}
 		});
 		var chart = 'uk' + year + 'chart';
-		var html = 'Showing ' + count + ' of 650 constituencies<div id="' + chart + '"></div>';
+		var html = 'Showing ' + count + ' of 650 constituencies (' + year + ')<div id="' + chart + '"></div>';
 		$('#uk-' + y).html(html);
 	});
 }
