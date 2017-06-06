@@ -369,7 +369,7 @@ function applyColors(y)
 				thisLayer.setStyle({fillColor: color, fillOpacity: 0.707});
 			}
 		});
-		$('#uk' + y + 'header').html('<p>Showing ' + count + ' of 650 constituencies (' + year + ')</p>');
+		$('#uk' + y + 'header').html('<p>Results from ' + count + ' of 650 constituencies (' + year + ')</p>');
 	});
 }
 
@@ -380,7 +380,6 @@ $(document).ready(function() {
         $(this).parent().siblings().removeClass("current");
         var tab = $(this).attr("href");
         $(".tab-content").not(tab).css("display", "none");
-//		$(tab).css("display", "block");
         $(tab).fadeIn(400, function(){
 			var params = {};
 			switch(tab)
