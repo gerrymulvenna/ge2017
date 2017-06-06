@@ -64,8 +64,12 @@ function layerSelect(layer, by_event)
 		tips.update('<a href="#tab1">Go to information below</a>');
 		if (by_event)
 		{
-			setParam(post_id, year);
+			setParam({'wmc' : post_id, 'year' : year});
 		}
+	}
+	else
+	{
+		$(".tab-content:visible").html("Select a constituency from the map");
 	}
 }
 
@@ -222,8 +226,13 @@ function getSearchParams(k){
 }
 
 //function to record ward_code in URL search query string (assumes it is only parameter)
-function setParam(wmc, y){
-  window.history.replaceState({}, '', location.pathname + '?wmc=' + wmc + '&year=' + y );
+function setParam(params){
+	var segments = [];
+	$.each(params, function(key, value) {
+		segments.push(key + "=" + value);
+	});
+	var searchString = segments.join('&');
+	window.history.replaceState({}, '', location.pathname + '?' + searchString);
 }
 
 // change the title to reflect the ward selected
@@ -360,7 +369,8 @@ function applyColors(y)
 				thisLayer.setStyle({fillColor: color, fillOpacity: 0.707});
 			}
 		});
-		var html = "Showing " + count + " of 650 constituencies";
+		var chart = 'uk' + year + 'chart';
+		var html = 'Showing ' + count + ' of 650 constituencies<div id="' + chart + '"></div>';
 		$('#uk-' + y).html(html);
 	});
 }
@@ -372,30 +382,37 @@ $(document).ready(function() {
         $(this).parent().siblings().removeClass("current");
         var tab = $(this).attr("href");
         $(".tab-content").not(tab).css("display", "none");
-        $(tab).fadeIn(400, function(){
+		$(tab).css("display", "block");
+//        $(tab).fadeIn(400, function(){
+			var params = {};
 			switch(tab)
 			{
 				case '#candidates-2017':
 					year = "2017";
 					applyColors(year);
 					layerSelect(currentLayer, false);
+					params['wmc'] = post_id;
 					break;
 				case "#uk-2017":
 					year = "2017";
 					applyColors(year);
+					overview_by_var(year, "no_seats", "name", "seat", "seats", "no_seats", '#uk' + year + 'chart');
 					break;
 				case '#candidates-2015':
 					year = "2015";
 					applyColors(year);
 					layerSelect(currentLayer, false);
+					params['wmc'] = post_id;
 					break;
 				case "#uk-2015":
 					year = "2015";
 					applyColors(year);
+					overview_by_var(year, "no_seats", "name", "seat", "seats", "no_seats", '#uk' + year + 'chart');
 					break;
 			}
-			setParam(post_id, year);
-		});
+			params['year'] = year;
+			setParam(params);
+//		});
     });
 });
 
@@ -408,6 +425,10 @@ $(window).load(function(e) {
 			{
 				layerSelect(initlayer, false);
 			}
+	}
+	else
+	{
+		selectTab("#uk-2017");
 	}
 });
 

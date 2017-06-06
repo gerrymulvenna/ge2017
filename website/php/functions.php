@@ -84,6 +84,7 @@ if (!$infopage)
 {
     echo '
         <script src="/website/js/map.js"></script>
+        <script src="/website/js/overview.js"></script>
     ';
 }
 if ($treeview)
