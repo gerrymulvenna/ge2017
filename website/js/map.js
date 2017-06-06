@@ -7,19 +7,19 @@ if (searchParams['year'])
 
 var jsondata = [];
 var colors = [];
+var currentLayer;        //global to keep track of selected constituency
 var post_id;
 var post_label;
 var defaultStyle = {
-	weight: 1,
+	weight: 0.5,
 	color: '#34495e',
-	fillColor: '#34495e',
-	fillOpacity: 0.2,
-	opacity: 1
+	fillColor: 'pink',
+	opacity: 1,
+	fillOpacity: 0.707
 	};
 
-var layerStyle = {
-	weight: 1,
-	color: '#34495e',
+var nofillStyle = {
+	weight: 0.5,
 	fillOpacity: 0.707,
 	opacity: 1
 	};
@@ -40,28 +40,32 @@ function clickFeature(e) {
 
 function layerSelect(layer, by_event)
 {
-	boundaries.setStyle(layerStyle);
-	layer.setStyle({
-			weight: 3,
-			fillOpacity: 1
-	});
-	var currentZoom = map.getZoom();
-	var maxZoom = (currentZoom <= 7) ? 7: currentZoom;
-	map.fitBounds(layer, {maxZoom: maxZoom});
-
-	if (!L.Browser.ie && !L.Browser.opera) {
-		layer.bringToFront();
-		}
-	info.update(layer.feature.properties);
-	post_id = layer.feature.properties.CODE;
-	post_label = layer.feature.properties.NAME.replace(/ (Co|Burgh|Boro) Const$/g, '');
-	updateCandidates();
-	updateTitle(post_label);
-	selectTab('#candidates-' + year);
-	tips.update('<a href="#tab1">Go to information below</a>');
-	if (by_event)
+	if (typeof(layer) != "undefined")
 	{
-		setParam(post_id, year);
+		boundaries.setStyle(nofillStyle);
+		currentLayer = layer;
+		layer.setStyle({
+				weight: 3,
+				fillOpacity: 1
+		});
+		var currentZoom = map.getZoom();
+		var maxZoom = (currentZoom <= 7) ? 7: currentZoom;
+		map.fitBounds(layer, {maxZoom: maxZoom});
+
+		if (!L.Browser.ie && !L.Browser.opera) {
+			layer.bringToFront();
+			}
+		info.update(layer.feature.properties);
+		post_id = layer.feature.properties.CODE;
+		post_label = layer.feature.properties.NAME.replace(/ (Co|Burgh|Boro) Const$/g, '');
+		updateCandidates();
+		updateTitle(post_label);
+		selectTab('#candidates-' + year);
+		tips.update('<a href="#tab1">Go to information below</a>');
+		if (by_event)
+		{
+			setParam(post_id, year);
+		}
 	}
 }
 
@@ -347,7 +351,7 @@ function applyColors(y)
 {
 	boundaries.setStyle(defaultStyle);
 	var count = 0;
-	$.getJSON('/' + y + '/colors.json', function (data) {
+	$.getJSON('/' + y + '/colors.json?' + new Date().getTime(), function (data) {
 		$.each( data, function( wmc, color ) {
 			var thisLayer = getLayer(boundaries, 'CODE', wmc);
 			count++;
@@ -372,25 +376,31 @@ $(document).ready(function() {
 			switch(tab)
 			{
 				case '#candidates-2017':
+					year = "2017";
+					applyColors(year);
+					layerSelect(currentLayer, false);
+					break;
 				case "#uk-2017":
 					year = "2017";
+					applyColors(year);
 					break;
 				case '#candidates-2015':
+					year = "2015";
+					applyColors(year);
+					layerSelect(currentLayer, false);
+					break;
 				case "#uk-2015":
 					year = "2015";
+					applyColors(year);
 					break;
 			}
 			setParam(post_id, year);
-			applyColors(year);
 		});
     });
 });
 
 $(window).load(function(e) {
-	if (searchParams['year'])
-	{
-		applyColors(searchParams['year']);
-	}
+	applyColors(year);
 	if (searchParams['wmc'])
 	{
 			var initlayer = getLayer (boundaries, 'CODE', searchParams['wmc']);
