@@ -5,6 +5,7 @@ if (searchParams['year'])
 	year = searchParams['year'];
 }
 
+
 var jsondata = [];
 var colors = [];
 var currentLayer;        //global to keep track of selected constituency
