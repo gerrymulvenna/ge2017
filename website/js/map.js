@@ -412,6 +412,9 @@ $(document).ready(function() {
 			}
 			params['year'] = year;
 			setParam(params);
+			$(".tab-content").each(function(i, obj) {
+				console.log(obj);
+			});
 //		});
     });
 });
