@@ -408,5 +408,23 @@ $(window).load(function(e) {
 		selectTab("#uk-" + year);
 		overview_by_var(year, "no_seats", "name", "seat", "seats", "no_seats", '#uk' + year + 'chart');
 	}
+
+    $('#js-news').ticker({
+        speed: 0.10,           // The speed of the reveal
+        ajaxFeed: true,       // Populate jQuery News Ticker via a feed
+        feedUrl: 'https://stage.candidates.democracyclub.org.uk/results/all.atom',        // The URL of the feed
+	                       // MUST BE ON THE SAME DOMAIN AS THE TICKER
+        feedType: 'xml',       // Currently only XML
+        htmlFeed: false,        // Populate jQuery News Ticker via HTML
+        debugMode: true,       // Show some helpful errors in the console or as alerts
+  	                       // SHOULD BE SET TO FALSE FOR PRODUCTION SITES!
+        controls: true,        // Whether or not to show the jQuery News Ticker controls
+        titleText: 'Latest',   // To remove the title set this to an empty String
+        displayType: 'reveal', // Animation type - current options are 'reveal' or 'fade'
+        direction: 'ltr',       // Ticker direction - current options are 'ltr' or 'rtl'
+        pauseOnItems: 2000,    // The pause on a news item before being replaced
+        fadeInSpeed: 600,      // Speed of fade in animation
+        fadeOutSpeed: 300      // Speed of fade out animation
+	});
 });
 
