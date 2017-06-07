@@ -18,7 +18,6 @@ function head($title, $mapLat, $mapLong, $mapZoom, $twimg = '/website/image/ge20
     <script src="/website/js/jstree/jstree.min.js"></script>
   <script src="/website/js/jstree/jstree.types.js"></script>
   <script src="/website/js/jstree/jstree.search.js"></script>
-  <script src="/website/js/jquery.ticker.js"></script>
 <script type="text/javascript">
 // global vars for maps.js
 ';
@@ -33,7 +32,6 @@ function head($title, $mapLat, $mapLong, $mapZoom, $twimg = '/website/image/ge20
 	<link rel="stylesheet" type="text/css" href="/website/css/enhanced.css" media="screen  and (min-width: 50.5em)" />
     <link rel="stylesheet" href="/website/css/font-awesome.min.css">
 	<link rel="stylesheet" href="/website/js/jstree/themes/default/style.min.css" />
-	<link rel="stylesheet" href="/website/css/ticker-style.css" />
 	<link rel="icon" type="image/png" href="/website/image/favicon-32x32.png" sizes="32x32" />
 	<link rel="icon" type="image/png" href="/website/image/favicon-16x16.png" sizes="16x16" />
 		<!--[if (lt IE 9)&(!IEMobile)]>
@@ -75,10 +73,7 @@ function navigation($title, $param2 = NULL, $param3 = NULL, $param4 = NULL)
                 <li><a href="/treeview/by-party.php"><span>Parties</span></a></li>
                 <li><a href="/postcode/"><span>Postcode</span></a></li>
             </ul>
-        </div>
-        <ul id="js-news" class="js-hidden">
-        </ul>
-';
+        </div>';
 }
 
 function foot($treeview = False, $param2 = False, $param3 = NULL, $param4 = NULL)
