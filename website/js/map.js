@@ -144,8 +144,15 @@ function updateCandidates()
 {
 	var years = {"2015":"2015-05-07", "2017":"2017-06-08"};
 	$.each(years, function (y, electionDate) {
-		findInfo(y, 'parl.' + electionDate + '.json');   //populate jsondata
-
+		var cData = {};
+		$.ajax({
+			'async': false,
+			'global': false,
+			'url': '/' + year + '/' + post_id + '.json?' + new Date().getTime(),
+			'dataType': "json",
+			'success': function (data) {
+				cData = data;
+		}});
 		var ack = '<div id="ack"><div id="dc-caption">This full set of candidate data was collated by</div><div id="dc-logo"><a href="http://democracyclub.org.uk"><img src="https://democracyclub.org.uk/static/dc_theme/images/logo-with-text-2017.png" width="250"></a></div><div id="disclaimer">DISCLAIMER The ordering of the candidates above is a best guess. The actual ballot paper for this ward may interpret the alphabetical ordering of candidates\' names differently.</div>';
 		this.innerHTML = '';
 		var tw;
@@ -157,9 +164,7 @@ function updateCandidates()
 		var status;
 		var party;
 
-		var cData = getObjects(jsondata, 'post_id', 'WMC:' + post_id);
-
-		if (cData.length > 0)
+		if (cData.election == 'parl.' + electionDate)
 		{
 			$.ajax({
 				'async': false,
@@ -172,7 +177,7 @@ function updateCandidates()
 					$("#electorate").html("<p>Electorate: " + numberWithCommas(parseInt(cinfo.Total_Electorate)) + ", Turnout: " + numberWithCommas(parseInt(cinfo.Total_Poll)) + " (" + turnout + "%), Valid votes: " + numberWithCommas(parseInt(cinfo.Valid_Poll)) + ", Quota: " + numberWithCommas(quota) + "</p>\n");
 				}});
 
-			var candidates = cData[0].candidates.sort(cmpSurnames);
+			var candidates = cData.candidates.sort(cmpSurnames);
 			var html = '<h3><a class="cand_anchor" name="candidates">' + post_label + '</a><br><span class="seats">' + candidates.length + ' candidates in ' + y + '</span></h3>';
 			for (i = 0; i < candidates.length; i++) {
 				tw = (candidates[i].twitter_username) ? '<a href="http://twitter.com/' + candidates[i].twitter_username + '" target="~_blank"><i class="fa fa-twitter fa-fw" title="@' +  candidates[i].twitter_username + ' on Twitter"></i></a>' : '';

@@ -774,10 +774,13 @@ function buildData($csvfiles, $fields, $required)
                     }
                 }
             }
-            $dc = new DemoClub_Wards();
-            $dc->wards = $wards;
-            // $matches[2] should contain the year from the election date
-            writeJSON($dc, '../'. $matches[2] . '/' . $election . ".json");
+            foreach ($wards as $ward)
+            {
+                // $matches[2] should contain the year from the election date
+                // create a small JSON for each constituency per year
+                $post_id = substr($ward['post_id'],4);
+                writeJSON($ward, '../'. $matches[2] . '/' . $post_id . ".json");
+            }
         }
     }
 }
