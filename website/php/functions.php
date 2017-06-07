@@ -18,6 +18,7 @@ function head($title, $mapLat, $mapLong, $mapZoom, $twimg = '/website/image/ge20
     <script src="/website/js/jstree/jstree.min.js"></script>
   <script src="/website/js/jstree/jstree.types.js"></script>
   <script src="/website/js/jstree/jstree.search.js"></script>
+  <script src="/website/js/FeedEk.js"></script>
 <script type="text/javascript">
 // global vars for maps.js
 ';

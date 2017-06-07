@@ -1,5 +1,4 @@
-CNAME
-*.~lock*
-2017/NI/other-elected.csv
-2017/scripts
-*.ods
+/atom/*.json
+/atom/archive/*.xml
+/2015/*.json
+/2017/*.json

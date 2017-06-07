@@ -52,6 +52,7 @@ echo'
                     </div>
                 </div>
             </div>
+            <div id="dcAtom"></div>
 		</div>';
 foot();
 ?>

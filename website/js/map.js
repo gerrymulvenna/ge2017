@@ -408,5 +408,18 @@ $(window).load(function(e) {
 		selectTab("#uk-" + year);
 		overview_by_var(year, "no_seats", "name", "seat", "seats", "no_seats", '#uk' + year + 'chart');
 	}
+	$.ajax({
+		'async': false,
+		'global': false,
+		'cache': false,
+		'url': '/atom/',
+		'dataType': "text xml",
+		'success': function (data) {
+			console.log(data);
+		},
+		'error': function (jqX, msg, error) {
+			console.log(msg, error);
+		}
+	});
 });
 
