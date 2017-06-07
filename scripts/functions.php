@@ -866,7 +866,6 @@ function buildData($csvfiles, $fields, $required)
         {
             $wards = array();
             $wardIDs = array();   //used to keep track of which wards have been added
-            $candURL = 
             $arrCand = getData($csv, $election);
             // remove any dud lines
             for ($i = 1; $i < count($arrCand); $i++)
@@ -1064,10 +1063,7 @@ function getData($csvURL, $election)
 
     $arr = array();
     $handle = fopen($my_file, "r");
-    while ($row = fgetcsv($handle))
-    {
-        $arr[] = $row;
-    }
+    while ($arr[] = fgetcsv($handle));
     fclose($handle);
     return ($arr);
 }
