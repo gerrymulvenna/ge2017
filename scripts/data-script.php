@@ -585,7 +585,7 @@ function buildCTree($elections, $party_prefix)
             $cwards = array();
             $id = 0;
             $ctotal = 0;
-            $root = new jstree_node(++$id,"root","UK General Election " . $matches[1]);
+            $root = new jstree_node(++$id,"root","UK #GE" . $matches[1]);
             $root->open();      // expand at startup
 
             $cdata = readJSON('../' . $matches[1] . '/' . $election . ".json");
@@ -774,6 +774,12 @@ function buildData($csvfiles, $fields, $required)
                     }
                 }
             }
+            // full JSON is used in building the treeviews
+            $dc = new DemoClub_Wards();
+            $dc->wards = $wards;
+            // $matches[2] should contain the year from the election date
+            writeJSON($dc, '../'. $matches[2] . '/' . $election . ".json");
+
             foreach ($wards as $ward)
             {
                 // $matches[2] should contain the year from the election date
