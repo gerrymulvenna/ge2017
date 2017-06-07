@@ -26,6 +26,7 @@ echo'
                     <li><a href="#candidates-2015">2015<br>candidates</a></li>
                     <li class="current"><a href="#uk-2017">2017<br>All UK</a></li>
                     <li><a href="#uk-2015">2015<br>All UK</a></li>
+                    <li><a href="#search-tab">Search</a></li>
                 </ul>
                 <div class="tab">
                     <div id="candidates-2017" class="tab-content"></div>
@@ -41,6 +42,13 @@ echo'
                         </div>
                         <div id="uk2015chart">
                         </div>
+                    </div>
+                    <div id="search-tab" class="tab-content">
+                        <h3>Explore and search 2017 candidates</h3>
+                        <p>Click on a constituency or candidate to locate on map</p>
+                        <div id="tree-ack"><div id="dc-caption">This full set of candidate data was collated by</div><div id="dc-logo"><a href="http://democracyclub.org.uk"><img src="https://democracyclub.org.uk/static/dc_theme/images/logo-with-text-2017.png" width="250"></a></div></div>
+                            <input type="text" id="map-tree-search" value="" class="input" placeholder="Find candidate or constituency" />
+                            <div id="map-tree" class="demo"></div>
                     </div>
                 </div>
             </div>

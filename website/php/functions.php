@@ -76,20 +76,22 @@ function navigation($title, $param2 = NULL, $param3 = NULL, $param4 = NULL)
         </div>';
 }
 
-function foot($infopage = False, $treeview = False, $param3 = NULL, $param4 = NULL)
+function foot($treeview = False, $param2 = False, $param3 = NULL, $param4 = NULL)
 {
 echo '
 	</div>';
-if (!$infopage)
+if ($treeview)
 {
+echo '
+        <script src="/website/js/treeview.js"></script>
+    ';
+}
+else
+{
+
     echo '
         <script src="/website/js/map.js"></script>
         <script src="/website/js/overview.js"></script>
-    ';
-}
-if ($treeview)
-{
-    echo '
         <script src="/website/js/treeview.js"></script>
     ';
 }

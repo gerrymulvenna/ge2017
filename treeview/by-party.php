@@ -22,5 +22,5 @@ echo'<div class="content">
 	<div id="party-tree" class="demo"></div>
 
 </div>';
-foot(True, True);
+foot(true);
 ?>

@@ -18,9 +18,9 @@ echo'<div class="content">
 
 <h3>Explore and search by CONSTITUENCY</h3>
 <div id="tree-ack"><div id="dc-caption">This full set of candidate data was collated by</div><div id="dc-logo"><a href="http://democracyclub.org.uk"><img src="https://democracyclub.org.uk/static/dc_theme/images/logo-with-text-2017.png" width="250"></a></div></div>
-	<input type="text" id="constituency-tree-search" value="" class="input" placeholder="Find party, candidate or constituency" />
+	<input type="text" id="constituency-tree-search" value="" class="input" placeholder="Find candidate or constituency" />
 	<div id="constituency-tree" class="demo"></div>
 
 </div>';
-foot(True, True);
+foot(true);
 ?>

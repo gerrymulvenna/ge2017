@@ -399,6 +399,10 @@ $(window).load(function(e) {
 				layerSelect(initlayer, false);
 			}
 	}
+	else if (searchParams['search'])
+	{
+		selectTab("#search-tab");
+	}
 	else
 	{
 		selectTab("#uk-" + year);
