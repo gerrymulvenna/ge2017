@@ -1,4 +1,4 @@
-/atom/*.json
-/atom/archive/*.xml
-/2015/*.json
-/2017/*.json
+atom/*.json
+atom/archive/*.xml
+2015/*.json
+2017/*.json
