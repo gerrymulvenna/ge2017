@@ -5,8 +5,6 @@ if (searchParams['year'])
 	year = searchParams['year'];
 }
 
-
-var jsondata = [];
 var colors = [];
 var currentLayer;        //global to keep track of selected constituency
 var post_id;
@@ -246,40 +244,6 @@ function updateTitle (constituency)
 {
 	var title = document.title;
 	document.title = "Data for the UK General Election 2017, " + constituency + " constituency";
-}
-
-// request candidate info for the specified year (can use this for other request by changing filename arg)
-// outputs the parse Json responseText to global var jsondata
-function findInfo(year, filename) {
-	$.ajax({
-		'async': false,
-		'global': false,
-		'url': '/' + year + '/' + filename,
-		'dataType': "json",
-		'success': function (data) {
-			jsondata = data;
-		}});
-}
-
-// examine an object array (obj) for a key (key) matching a value (val) and return the matching object
-function getObjects(obj, key, val) {
-    var objects = [];
-    for (var i in obj) {
-        if (!obj.hasOwnProperty(i)) continue;
-        if (typeof obj[i] == 'object') {
-            objects = objects.concat(getObjects(obj[i], key, val));
-        } else
-        //if key matches and value matches or if key matches and value is not passed (eliminating the case where key matches but passed value does not)
-        if (i == key && obj[i] == val || i == key && val == '') { //
-            objects.push(obj);
-        } else if (obj[i] == val && key == '') {
-            //only add if the object is not already in the array
-            if (objects.lastIndexOf(obj) == -1) {
-                objects.push(obj);
-            }
-        }
-    }
-    return objects;
 }
 
 // used in sorting candidates
