@@ -538,7 +538,7 @@ function buildPTree($elections, $party_prefix, $party_colors)
                 }
             }
             // generate the scotland-level overview JSON, a summary of the party standings across all councils
-            $overview = new Overview("UK General Election " . $matches[1], "ge-" . $matches[1], "root");
+            $overview = new Overview("UK GE" . $matches[1], "ge-" . $matches[1], "root");
             $overview->no_seats = $root->no_seats;
             $overview->no_candidates = $root->no_candidates;
             for ($i = 0; $i < count($root->children); $i++)   
