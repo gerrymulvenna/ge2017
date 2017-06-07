@@ -754,6 +754,7 @@ function buildCTree($elections, $party_prefix)
                     $node->no_candidates = count($ward->candidates);
                     $href = "/map/?year=" . $matches[1] . "&wmc=" . substr($ward->post_id, 4);
                     $node->applyProperty("href", $href);
+                    $node->applyProperty("post_id", substr($ward->post_id, 4));
                     $nation_node->children[] = $node;
                     $nation_node->no_candidates += count($ward->candidates);
                     
@@ -764,16 +765,50 @@ function buildCTree($elections, $party_prefix)
                 }
             }
             $root->no_candidates = $ctotal;
+            applyRegions($root);
             extendNames($root);
             writeJSON($root, "../" . $matches[1] . "/constituency-tree.json");
         }
     }
 }
 
+//espeically for England insert regions between nation_node and constituencies
+function insertRegions($node, $region_file)
+{
+    $id = 5000;
+    $json = readJSON($region_file);
+    $region = array();
+    foreach ($json as $obj)
+    {
+        $region[substr($obj->post_id,4)] = $obj->region;
+    }
+    $children = $node->children;
+    $node->children = array();
+    $region_nodes = array();
+    foreach ($children as $child)
+    {
+        $post_id = $child->properties['post_id'];
+        if (in_array($post_id, array_keys($region)))
+        {
+            if (array_key_exists($region[$post_id], $region_nodes))
+            {
+                $region_node = $region_nodes[$region[$post_id]];
+            }
+            else
+            {
+                $region_node = new jstree_node(++$id,  "region", $region[$post_id]);
+                $region_nodes[$region[$post_id]] = $region_node;
+                $node->children[] = $region_node;
+            }
+            $region_node->children[] = $child;
+            $region_node->no_candidates += $child->no_candidates;
+        }            
+    }
+}
+
 // quick fix to show counts in party tree (recursive)
 function extendParties($node)
 {
-
     if (count($node->children))
     {
         switch ($node->type)
@@ -800,6 +835,22 @@ function extendParties($node)
     }
 }
 
+// find the England node and insert the regions there
+function applyRegions($node)
+{
+    if ($node->text == "England")
+    {
+        insertRegions($node, "england-regions.json");
+    }
+    else
+    {
+        foreach ($node->children as $child)
+        {
+            applyRegions($child);
+        }
+    }
+}
+
  // quick fix to show seats and candidates for parent nodes (recursive)
  function extendNames($node)
  {
@@ -810,8 +861,11 @@ function extendParties($node)
             case "root":
                 $node->text .= " (" . $node->countType("constituency") . " constituencies, " . $node->no_candidates . " candidates)";
                 break;
+            case "region":
+                $node->text .= " (" . $node->countType("constituency") . " constituencies, " . $node->no_candidates . " candidates)";
+                break;
             case "nation":
-                $node->text .= " (" . count($node->children) . " constituencies, " . $node->no_candidates . " candidates)";
+                $node->text .= " (" . $node->countType("constituency") . " constituencies, " . $node->no_candidates . " candidates)";
                 break;
             case "constituency":
                 $node->text .= " (" . $node->no_candidates . " candidates)";
@@ -1147,6 +1201,7 @@ class jstree_node
         $this->state->selected = false;
     }
 
+
     // recursively count nodes of a given type
     function countType($type)
     {
@@ -1317,9 +1372,8 @@ function saveCSV($arr, $my_file)
 function writeJSON($data, $my_file)
 {
   echo "Writing $my_file<br>\n";
-  $json = json_encode($data);
   $handle = fopen($my_file, 'w') or die('Cannot open file:  '.$my_file);
-  fwrite($handle, $json);
+  fwrite($handle, json_encode($data));
   fclose($handle);
 }
 
@@ -1327,10 +1381,9 @@ function writeJSON($data, $my_file)
 function readJSON($my_file)
 {
     $handle = fopen($my_file, 'r') or die('Cannot open file:  '.$my_file);
-    $json = fread($handle, filesize($my_file));
-    fclose($handle);
     echo "Reading $my_file<br>\n";
-    $data = json_decode($json);
+    $data = json_decode(fread($handle, filesize($my_file)));
+    fclose($handle);
     return ($data);
 }
 
