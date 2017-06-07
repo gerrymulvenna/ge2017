@@ -9,7 +9,8 @@ function overview_by_var(year, primary, secondary, singular, plural, refvar, tar
     var leftPadding = 0;
     var nameSpace = 70;
     var startLeft = leftPadding+nameSpace;
-    var voteWidth = 300;
+    var voteWidth = 250;
+
 	if (startLeft + voteWidth > screen.width - 30)
 	{
 		voteWidth = screen.width - startLeft - 30;
