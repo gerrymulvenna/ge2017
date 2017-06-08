@@ -1,15 +1,6 @@
 <?php
 require "functions.php";
 
-$json = readJSON("england-regions.json");
-
-$region = array();
-foreach ($json as $obj)
-{
-    $region[$obj->post_id] = $obj->region;
-}
-print_r($region);
-
-
+process2015("../scripts/results-constituencies-2015.csv", "../scripts/results-candidates-2015.csv", "../2015/results");
 ?>
 

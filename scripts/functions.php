@@ -1410,9 +1410,9 @@ class Constituency
     public $countInfo;
     public $countGroup;
 
-    function __construct($name, $no, $seats, $pop, $electorate, $total, $valid)
+    function __construct($post_label, $post_id, $electorate, $total, $valid)
     {
-        $this->countInfo = new countInfo($name, $no, $seats, $pop, $electorate, $total, $valid);
+        $this->countInfo = new countInfo($post_label, $post_id, $electorate, $total, $valid);
         $this->countGroup = array();
     }
 }
@@ -1426,7 +1426,7 @@ class countInfo
     public $electorate;
     public $rejected;
 
-    function __construct($name, $no, $seats, $pop, $electorate, $total, $valid)
+    function __construct($post_label, $post_id, $electorate, $total, $valid)
     {
         $this->valid_poll = $valid;
         $this->total_poll = $total;
@@ -1442,18 +1442,16 @@ class countItem
     public $id;
     public $votes;
     public $elected;
-    public $firstname;
-    public $surname;
+    public $name;
     public $post_id;
     public $party_name;
 
-    function __construct($id, $post_id, $fname, $sname, $party, $votes, $elected = "")
+    function __construct($id, $post_id, $name, $party, $votes, $elected = "")
     {
         $this->id = $id;
         $this->votes = $votes;
         $this->elected = $elected;
-        $this->surname = $sname;
-        $this->firstname = $fname;
+        $this->name = $name;
         $this->post_id = $post_id;
         $this->party_name = $party;
     }
@@ -1544,4 +1542,37 @@ function pollFeed($url, $dir)
 }
 
 
+function process2015 ($const_csv, $cand_csv, $dir)
+{
+    $const = getCSV($const_csv);
+    $header = array_shift($const);
+    array_walk($const, '_combine_array', $header);
+
+    $cand = getCSV($cand_csv);
+    $header = array_shift($cand);
+    array_walk($cand, '_combine_array', $header);
+
+    $lookup = array();
+    foreach($cand as $row)
+    {
+        $lookup[$row['post_id']][] = $row;
+    }
+
+    $cdata = array();
+    foreach($const as $row)
+    {
+        if ($row['post_id'])
+        {
+            $cinfo = new Constituency($row['post_label'], $row['post_id'], $row['electorate'], $row['total_poll'], $row['valid_poll']);
+            $max = 0;
+            foreach ($lookup[$row['post_id']] as $item)
+            {
+                $item = new countItem($item['id'], $item['post_id'], $item['name'], $item['party_name'], $item['votes']);
+                $cinfo->countGroup[] = $item;
+            }
+            $fname = $dir . "/" . $row['post_id'] . ".json";
+            writeJSON($cinfo, $fname);
+        }
+    }
+}
 ?>
