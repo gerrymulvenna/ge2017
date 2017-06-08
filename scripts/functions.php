@@ -1,6 +1,7 @@
 <?php
 
 $dataRoot = "https://candidates.democracyclub.org.uk/media/candidates-";
+$rid = 5000;
 
 $elections = array(
 "parl.2017-06-08",
@@ -665,6 +666,11 @@ function buildPTree($elections, $party_prefix, $party_colors)
                         }
                         $root->no_candidates += 1;
                         $name = ($candidate->elected == "True") ? '<span class="elected">' . $candidate->name . '</span>' : $candidate->name;
+                        $cand_node = new jstree_node(++$id,"candidate", $ward->post_label . ", " . $name );
+                        $nation_node->children[] = $cand_node;
+                        $cand_node->applyProperty('href', '/map/?year=' . $matches[1] . '&wmc=' . substr($ward->post_id, 4));
+                        $cand_node->applyProperty('post_id', substr($ward->post_id, 4));
+                        $cand_node->no_candidates = 1;
                         if ($candidate->elected == "True")
                         {
                             if (array_key_exists(stripParty($candidate->party_name), $party_colors))
@@ -675,10 +681,8 @@ function buildPTree($elections, $party_prefix, $party_colors)
                             $nation_node->no_seats += 1;
                             $party_node->no_seats += 1;
                             $root->no_seats += 1;
+                            $cand_node->no_seats = 1;
                         }
-                        $cand_node = new jstree_node(++$id,"candidate", $ward->post_label . ", " . $name );
-                        $nation_node->children[] = $cand_node;
-                        $cand_node->applyProperty('href', '/map/?year=' . $matches[1] . '&wmc=' . substr($ward->post_id, 4));
                     }
                 }
             }
@@ -702,11 +706,15 @@ function buildPTree($elections, $party_prefix, $party_colors)
             writeJSON($overview, "../" . $matches[1] . "/overview.json");
 
             $root->sortbycandidate();
+
+            $rid = 5000;
             foreach ($root->children as $party_node)
             {
                 $party = stripParty($party_node->text);
                 $party_node->icon = $party;        // icon property in jstree types plugin is interpreted as a class if it does not contain /
+                applyRegions($party_node);
             }
+
             extendParties($root);
             writeJSON($root, '../' . $matches[1] . "/party-tree.json");
             writeJSON($colors, '../' . $matches[1] . "/colors.json");
@@ -718,6 +726,8 @@ function buildPTree($elections, $party_prefix, $party_colors)
 //build JSON data for the jstree library using wardinfo and the candidate JSON for each constituency
 function buildCTree($elections, $party_prefix)
 {
+    global $rid;
+
     $nation_names = array('E' => "England", "W"=>"Wales", "N" => "Northern Ireland", "S" => "Scotland");
     // convert the candidate data to tree nodes indexed by cand_ward_code (post_id)
     echo "Building CANDIDATE data tree...<br>\n";
@@ -765,6 +775,7 @@ function buildCTree($elections, $party_prefix)
                 }
             }
             $root->no_candidates = $ctotal;
+            $rid = 10000;
             applyRegions($root);
             extendNames($root);
             writeJSON($root, "../" . $matches[1] . "/constituency-tree.json");
@@ -775,7 +786,8 @@ function buildCTree($elections, $party_prefix)
 //espeically for England insert regions between nation_node and constituencies
 function insertRegions($node, $region_file)
 {
-    $id = 5000;
+    global $rid;
+
     $json = readJSON($region_file);
     $region = array();
     foreach ($json as $obj)
@@ -796,12 +808,13 @@ function insertRegions($node, $region_file)
             }
             else
             {
-                $region_node = new jstree_node(++$id,  "region", $region[$post_id]);
+                $region_node = new jstree_node(++$rid,  "region", $region[$post_id]);
                 $region_nodes[$region[$post_id]] = $region_node;
                 $node->children[] = $region_node;
             }
             $region_node->children[] = $child;
             $region_node->no_candidates += $child->no_candidates;
+            $region_node->no_seats += $child->no_seats;
         }            
     }
 }
@@ -820,12 +833,17 @@ function extendParties($node)
             case "nation":
                 $cand = ($node->no_candidates == 1) ? "candidate" : "candidates";
                 $word = ($node->no_seats == 1) ? "seat" : "seats";
-                $node->text = " " . $node->text . " (" . $node->no_seats . " " . $word . ", " . $node->no_candidates . " " . $cand .")";
+                $node->text = " " . $node->text . " (" . $node->no_seats . " " . $word . ", " . $node->no_candidates . " " . $cand . sprintf(", %.1f%% success", 100 * $node->no_seats / $node->no_candidates) . ")";
+                break;
+            case "region":
+                $cand = ($node->no_candidates == 1) ? "candidate" : "candidates";
+                $word = ($node->no_seats == 1) ? "seat" : "seats";
+                $node->text = " " . $node->text . " (" . $node->no_seats . " " . $word . ", " . $node->no_candidates . " " . $cand . sprintf(", %.1f%% success", 100 * $node->no_seats / $node->no_candidates) .")";
                 break;
             case "party":
                 $cand = ($node->no_candidates == 1) ? "candidate" : "candidates";
                 $word = ($node->no_seats == 1) ? "seat" : "seats";
-                $node->text = " " . $node->text . " (" . $node->no_seats . " " . $word . ", " . $node->no_candidates . " " . $cand .")";
+                $node->text = " " . $node->text . " (" . $node->no_seats . " " . $word . ", " . $node->no_candidates . " " . $cand . sprintf(", %.1f%% success", 100 * $node->no_seats / $node->no_candidates) .")";
                 break;
         }
         foreach ($node->children as $child)

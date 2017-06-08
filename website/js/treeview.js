@@ -175,12 +175,11 @@ $('#party-tree').jstree(
 		},
 		"party" : 
 		{
-			"valid_children" : ["constituency"]
+			"valid_children" : ["nation"]
 		},
-		"constitency" : 
+		"nation" : 
 		{
-	   	    "icon" : "/website/image/group-16.png",
-			"valid_children" : ["candidate"]
+			"valid_children" : ["region", "candidate"]
 		},
 		"candidate" : 
 		{
