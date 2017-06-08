@@ -603,7 +603,7 @@ function classifyParties($root, $party_prefix)
 }
 
 //build JSON data for the jstree with Parties as the children of the root using wardinfo and the candidate JSON for each council
-function buildPTree($elections, $party_prefix, $party_colors)
+function buildPTree($elections, $party_prefix, $party_colors, $region_file)
 {
     // get an index of ward and council info so we can build href preoperties for ward and candidate nodes
     echo "Building PARTIES data tree...<br>\n";
@@ -712,7 +712,7 @@ function buildPTree($elections, $party_prefix, $party_colors)
             {
                 $party = stripParty($party_node->text);
                 $party_node->icon = $party;        // icon property in jstree types plugin is interpreted as a class if it does not contain /
-                applyRegions($party_node);
+                applyRegions($party_node, $region_file);
             }
 
             extendParties($root);
@@ -724,7 +724,7 @@ function buildPTree($elections, $party_prefix, $party_colors)
 
 
 //build JSON data for the jstree library using wardinfo and the candidate JSON for each constituency
-function buildCTree($elections, $party_prefix)
+function buildCTree($elections, $party_prefix, $region_file)
 {
     global $rid;
 
@@ -776,7 +776,7 @@ function buildCTree($elections, $party_prefix)
             }
             $root->no_candidates = $ctotal;
             $rid = 10000;
-            applyRegions($root);
+            applyRegions($root, $region_file);
             extendNames($root);
             writeJSON($root, "../" . $matches[1] . "/constituency-tree.json");
         }
@@ -854,17 +854,17 @@ function extendParties($node)
 }
 
 // find the England node and insert the regions there
-function applyRegions($node)
+function applyRegions($node, $datafile)
 {
     if ($node->text == "England")
     {
-        insertRegions($node, "england-regions.json");
+        insertRegions($node, $datafile);
     }
     else
     {
         foreach ($node->children as $child)
         {
-            applyRegions($child);
+            applyRegions($child, $datafile);
         }
     }
 }
@@ -919,7 +919,7 @@ function convertCandidates($candidates, $last_id, $party_prefix, $href)
 
 
 // wards -> candidates 
-function buildData($csvfiles, $fields, $required)
+function buildData($csvfiles, $fields, $required, $dir)
 {
     echo "Building CANDIDATE data files...<br>\n";
     foreach ($csvfiles as $csv => $election)
@@ -938,7 +938,7 @@ function buildData($csvfiles, $fields, $required)
         {
             $wards = array();
             $wardIDs = array();   //used to keep track of which wards have been added
-            $arrCand = getData($csv, $election);
+            $arrCand = getData($csv, $election, $dir);
             // remove any dud lines
             for ($i = 1; $i < count($arrCand); $i++)
             {
@@ -1118,7 +1118,7 @@ function _combine_array(&$row, $key, $header) {
     }
 }
 
-function getData($csvURL, $election)
+function getData($csvURL, $election, $dir)
 {
     $ch = curl_init($csvURL);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -1128,7 +1128,7 @@ function getData($csvURL, $election)
     $data = curl_exec($ch);
     curl_close($ch);
 
-    $my_file = $election .".csv";
+    $my_file = $dir . "/" . $election .".csv";
     $handle = fopen($my_file, 'w') or die('Cannot open file:  '.$my_file);
     fwrite($handle, $data);
     fclose($handle);
@@ -1404,5 +1404,144 @@ function readJSON($my_file)
     fclose($handle);
     return ($data);
 }
+
+class Constituency
+{
+    public $countInfo;
+    public $countGroup;
+
+    function __construct($name, $no, $seats, $pop, $electorate, $total, $valid)
+    {
+        $this->countInfo = new countInfo($name, $no, $seats, $pop, $electorate, $total, $valid);
+        $this->countGroup = array();
+    }
+}
+
+class countInfo
+{
+    public $valid_poll;
+    public $total_poll;
+    public $post_label;
+    public $post_id;
+    public $electorate;
+    public $rejected;
+
+    function __construct($name, $no, $seats, $pop, $electorate, $total, $valid)
+    {
+        $this->valid_poll = $valid;
+        $this->total_poll = $total;
+        $this->post_label = $post_label;
+        $this->post_id = $post_id;
+        $this->electorate = $electorate;
+        $this->rejected = $total - $valid;
+    }
+}
+
+class countItem
+{
+    public $id;
+    public $votes;
+    public $elected;
+    public $firstname;
+    public $surname;
+    public $post_id;
+    public $party_name;
+
+    function __construct($id, $post_id, $fname, $sname, $party, $votes, $elected = "")
+    {
+        $this->id = $id;
+        $this->votes = $votes;
+        $this->elected = $elected;
+        $this->surname = $sname;
+        $this->firstname = $fname;
+        $this->post_id = $post_id;
+        $this->party_name = $party;
+    }
+}
+
+// poll an atom feed for election results (just elected status)
+// return 0 if nothing changed or the no. of elections in which changes were detected
+function pollFeed($url, $dir)
+{
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HEADER, false);
+    $str = curl_exec ($ch);
+    curl_close ($ch);
+
+    $xml = simplexml_load_string($str);
+
+    $elections = array();
+    $elected = array();
+    $retracted = array();
+    foreach ($xml->entry as $item)
+    {
+        $election = $item->election_slug->__toString();
+        $updated = $item->updated->__toString();
+        if (array_key_exists($election, $elections))
+        {
+            if ($updated > $elections[$election])
+            {
+                $elections[$election] = $updated;
+            }
+        }
+        else
+        {
+            $elections[$election] = $updated;
+        }            
+        $post_id = $item->post_id->__toString();
+        if ($item->retracted->__toString() == "1")
+        {
+            $retracted[$election][$post_id] = $item->winner_person_id->__toString();
+        }
+        $elected[$election][$post_id] = $item->winner_person_id->__toString();
+    }
+
+    $archive = 0;
+    foreach ($elections as $election => $updated)
+    {
+        $fname = $dir . "/" . $election . ".json";
+        if (file_exists($fname))
+        {
+            $json = readJSON($fname);
+            if ($updated > $json->updated)
+            {
+                $json->updated = $updated;
+                $json->last_id++;
+                // add any results with retracted flag set
+                foreach ($retracted[$election] as $post_id => $id)
+                {
+                    if ($elected[$post_id] == $id)
+                    {
+                        unset($json->elected[$post_id]);
+                    }
+                }
+                foreach ($elected[$election] as $post_id => $id)
+                {
+                    if (!in_array($post_id, array_keys($json->elected)))
+                    {
+                        $json->elected[$post_id] = $id;
+                    }
+                }
+                writeJSON($json, $fname);
+                $archive++;
+             }
+        }
+        else
+        {
+            $json = array("last_id"=>1, "updated"=>$updated, "elected" => $elected[$election]);
+            writeJSON($json, $fname);
+            $archive++;
+        }
+    }
+    if ($archive)
+    {
+        $fname = $dir . "/" . "archive/" . date("Y-m-d-His") . ".xml";
+        file_put_contents($fname, $str);
+    }
+    return($archive);
+}
+
 
 ?>
