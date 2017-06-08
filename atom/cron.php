@@ -2,14 +2,7 @@
 
 require "../scripts/functions.php";
 
-if ($_SERVER['SERVER_ADDR'] == "216.92.68.138")
-{
-    $url = "https://candidates.democracyclub.org.uk/results/all.atom";
-}
-else
-{
-    $url = "https://stage:ilovedemocracy@stage.candidates.democracyclub.org.uk/results/all.atom";
-}
+$url = "https://candidates.democracyclub.org.uk/results/all.atom";
 
 while(1)
 {
