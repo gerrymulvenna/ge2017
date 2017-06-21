@@ -895,7 +895,7 @@ a.result {
 	margin-top: 5px;
 	margin-bottom: 5px;
     top: 10px;
-    font-size: 14px;
+    font-size: 0.7em;
     color: #555;
 }
 
@@ -925,3 +925,7 @@ a.cand_anchor {
 	margin-top: 20px;
 }
 
+.poll {
+	display: inline-block;
+	width: 55px;
+}

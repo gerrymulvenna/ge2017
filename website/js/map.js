@@ -161,6 +161,8 @@ function updateCandidates()
 		var wiki;
 		var status;
 		var party;
+		var electorate = "";
+		var votes = {};
 
 		if (cData.election == 'parl.' + electionDate)
 		{
@@ -170,14 +172,19 @@ function updateCandidates()
 				'url': '/' + year + '/results/' + post_id + '.json?' + new Date().getTime(),
 				'dataType': "json",
 				'success': function (data) {
-					var cinfo = data.Constituency.countInfo;
-					var turnout = ((parseInt(cinfo.Total_Poll)/parseInt(cinfo.Total_Electorate)) * 100).toFixed(2);
-					$("#electorate").html("<p>Electorate: " + numberWithCommas(parseInt(cinfo.Total_Electorate)) + ", Turnout: " + numberWithCommas(parseInt(cinfo.Total_Poll)) + " (" + turnout + "%), Valid votes: " + numberWithCommas(parseInt(cinfo.Valid_Poll)) + ", Quota: " + numberWithCommas(quota) + "</p>\n");
+					var cinfo = data.countInfo;
+					var turnout = ((parseInt(cinfo.total_poll)/parseInt(cinfo.electorate)) * 100).toFixed(2);
+					electorate = "<p>Electorate: " + numberWithCommas(parseInt(cinfo.electorate)) + ", Turnout: " + numberWithCommas(parseInt(cinfo.total_poll)) + " (" + turnout + "%), Valid votes: " + numberWithCommas(parseInt(cinfo.valid_poll)) + "</p>\n";
+					$.each(data.countGroup, function(index, item) {
+						console.log(item.id, item.votes);
+						votes[item.id] = item.votes;
+					});
 				}});
 
 			var candidates = cData.candidates.sort(cmpSurnames);
-			var html = '<h3><a class="cand_anchor" name="candidates">' + post_label + '</a><br><span class="seats">' + candidates.length + ' candidates in ' + y + '</span></h3>';
+			var html = '<h3><a class="cand_anchor" name="candidates">' + post_label + '</a><br><span class="seats">' + candidates.length + ' candidates in ' + y + '</span></h3><div id="electorate-' + y + '"></div>';
 			for (i = 0; i < candidates.length; i++) {
+				poll = numberWithCommas(parseInt(votes[candidates[i].id]));
 				tw = (candidates[i].twitter_username) ? '<a href="http://twitter.com/' + candidates[i].twitter_username + '" target="~_blank"><i class="fa fa-twitter fa-fw" title="@' +  candidates[i].twitter_username + ' on Twitter"></i></a>' : '';
 				fb = (candidates[i].facebook_page_url) ? '<a href="' + candidates[i].facebook_page_url + '" target="_blank"><i class="fa fa-facebook fa-fw"  title="Facebook page"></i></a>' : '';
 				fbp = (candidates[i].facebook_personal_url) ? '<a href="' + candidates[i].facebook_personal_url + '" target="_blank"><i class="fa fa-facebook-official fa-fw" title="Personal Facebook profile"></i></a>' : '';
@@ -197,10 +204,11 @@ function updateCandidates()
 						status = "unkonwn";
 				}
 				party = candidates[i].party_name.replace(/\s+/g, "-").replace(/[\'\"&,.()]/g,"").replace(/\u2013/g, '_').replace(/\u00e9/g, 'e');
-				html += "<div class=\"votes " + party + "\"></div><div id=\"candidate " + candidates[i].id + "\" class=\"tooltip " + party + "_label\"><span class=\"tooltiptext\">" + candidates[i].party_name + "</span>" + '<span class="' + status +'">' + candidates[i].name + "</span><div class=\"cand-icons\">" + tw + fb + fbp + web  + linkedin + wiki  + edit + "</div></div><br/>";
+				html += "<div class=\"votes " + party + "\"></div><div id=\"candidate " + candidates[i].id + "\" class=\"tooltip " + party + "_label\">" + poll + " <span class=\"tooltiptext\">" + candidates[i].party_name + "</span>" + '<span class="' + status +'">' + candidates[i].name + "</span><div class=\"cand-icons\">" + tw + fb + fbp + web  + linkedin + wiki  + edit + "</div></div><br/>";
 			}
 			html += ack;
 			$('#candidates-' + y).html(html);
+			$('#electorate-' + y).html(electorate);
 		}
 	});
 }
@@ -408,18 +416,5 @@ $(window).load(function(e) {
 		selectTab("#uk-" + year);
 		overview_by_var(year, "no_seats", "name", "seat", "seats", "no_seats", '#uk' + year + 'chart');
 	}
-	$.ajax({
-		'async': false,
-		'global': false,
-		'cache': false,
-		'url': '/atom/',
-		'dataType': "text xml",
-		'success': function (data) {
-			console.log(data);
-		},
-		'error': function (jqX, msg, error) {
-			console.log(msg, error);
-		}
-	});
 });
 
