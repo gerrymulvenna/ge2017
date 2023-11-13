@@ -11,8 +11,8 @@ function head($title, $mapLat, $mapLong, $mapZoom, $twimg = '/website/image/ge20
     echo'
     <meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<script src="http://cdn.leafletjs.com/leaflet-0.7/leaflet.js"></script>
-	<script src="http://cdn.rawgit.com/calvinmetcalf/leaflet-ajax/gh-pages/dist/leaflet.ajax.min.js"></script>
+	<script src="https://cdn.leafletjs.com/leaflet-0.7/leaflet.js"></script>
+	<script src="https://cdn.rawgit.com/calvinmetcalf/leaflet-ajax/gh-pages/dist/leaflet.ajax.min.js"></script>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.js"></script>
 	<script src="/website/js/leaflet.pattern.js"></script>
     <script src="/website/js/jstree/jstree.min.js"></script>
@@ -27,7 +27,7 @@ function head($title, $mapLat, $mapLong, $mapZoom, $twimg = '/website/image/ge20
     echo "    var mapZoom = $mapZoom;\n";
     echo '</script>
 
-  <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7/leaflet.css"/>
+  <link rel="stylesheet" href="https://cdn.leafletjs.com/leaflet-0.7/leaflet.css"/>
 	<link rel="stylesheet" type="text/css" href="/website/css/style.css" media="screen, handheld" />
 	<link rel="stylesheet" type="text/css" href="/website/css/parties.css" media="screen, handheld" />
 	<link rel="stylesheet" type="text/css" href="/website/css/enhanced.css" media="screen  and (min-width: 50.5em)" />
@@ -51,7 +51,7 @@ function head($title, $mapLat, $mapLong, $mapZoom, $twimg = '/website/image/ge20
     <meta property="og:title" content="' . $title . '" />
     <meta property="og:description" content="' . $desc . '" />
 ';
-echo "    <meta property=\"og:image\" content=\"http://" . $_SERVER['SERVER_NAME'] . "$twimg\" />\n";
+echo "    <meta property=\"og:image\" content=\"https://" . $_SERVER['SERVER_NAME'] . "$twimg\" />\n";
 echo '
 
 </head>
