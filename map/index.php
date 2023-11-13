@@ -46,7 +46,7 @@ echo'
                     <div id="search-tab" class="tab-content">
                         <h3>Explore and search 2017 candidates</h3>
                         <p>Click on a constituency or candidate to locate on map</p>
-                        <div id="tree-ack"><div id="dc-caption">This full set of candidate data was collated by</div><div id="dc-logo"><a href="http://democracyclub.org.uk"><img src="https://democracyclub.org.uk/static/dc_theme/images/logo-with-text-2017.png" width="250"></a></div></div>
+                        <div id="tree-ack"><div id="dc-caption">This full set of candidate data was collated by</div><div id="dc-logo"><a href="http://democracyclub.org.uk"><img src="/website/image/dc-logo-with-text-2017.png" width="250"></a></div></div>
                             <input type="text" id="map-tree-search" value="" class="input" placeholder="Find candidate or constituency" />
                             <div id="map-tree" class="demo"></div>
                     </div>
